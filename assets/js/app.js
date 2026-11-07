@@ -378,6 +378,17 @@
                 ? `<div class="dataset-box" style="margin-top:0.5rem;"><strong>Notación y símbolos:</strong> ${esc(lesson.notationNote)}</div>`
                 : ''
             }
+            ${
+              lesson.id === 'L07'
+                ? `<div class="feedback-box feedback-ok" style="margin-top:0.75rem;display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;">
+                    <div>
+                      <strong>Micro-experiencia interactiva: La Media como Reparto Equitativo</strong>
+                      <div style="margin-top:0.2rem;">Mové libros entre 3 pilas (de 2, 5 y 8 libros) con clic o con el teclado hasta nivelarlas en 5 libros cada una y comprobar por qué <code>(2 + 5 + 8) ÷ 3 = 5</code>.</div>
+                    </div>
+                    <a class="btn btn-sm btn-primary" id="link-actividad-reparto" href="actividades/reparto-media.html">Abrir actividad interactiva de reparto →</a>
+                  </div>`
+                : ''
+            }
           </div>
 
           <div class="part-block">
