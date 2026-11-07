@@ -1,6 +1,8 @@
 # Estadística paso a paso · Aprendé, practicá y comprobá tus ideas
 
-**Versión 1.0.0.** Primera versión funcional, conservada como punto de partida para futuras mejoras de diseño y experiencia de aprendizaje. El repositorio no implica que GitHub Pages esté activado. Consultá la [auditoría de seguridad y privacidad](docs/AUDITORIA_SEGURIDAD_PRIVACIDAD.md), incluidas sus pruebas y limitaciones.
+**Versión 1.0.0.** Primera versión funcional, conservada como punto de partida para futuras mejoras de diseño y experiencia de aprendizaje. [Abrir el sitio en GitHub Pages](https://xavimape.github.io/estadistica-paso-a-paso/). Consultá la [auditoría de seguridad y privacidad](docs/AUDITORIA_SEGURIDAD_PRIVACIDAD.md), incluidas sus pruebas y limitaciones.
+
+La publicación utiliza la raíz de la rama `gh-pages`, generada exclusivamente desde `site/`. Para publicar cambios posteriores, verificarlos y confirmarlos en `main`, y ejecutar `git subtree push --prefix site origin gh-pages`. Los cambios de `main` no se publican automáticamente.
 
 Aplicación web educativa, estática e interactiva de **Estadística para 2.º año de educación secundaria** (Ciclo Básico, Argentina). Diseñada para acompañar el estudio autónomo y el repaso de **variables estadísticas, tablas de frecuencia, gráficos de barras y medidas de tendencia central (media, mediana y moda)**.
 

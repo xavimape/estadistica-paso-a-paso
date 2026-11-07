@@ -18,6 +18,12 @@ Si querés crear un repositorio que contenga únicamente el sitio listo para pub
 
 ---
 
+## Configuración activa de este repositorio
+
+Se activó GitHub Pages para servir `/` de la rama `gh-pages`, con HTTPS. Esa rama contiene solo la carpeta `site/` extraída mediante Git subtree. URL: https://xavimape.github.io/estadistica-paso-a-paso/ .
+
+Para actualizar: ejecutar las pruebas, confirmar los cambios en `main`, subir `main` y ejecutar `git subtree push --prefix site origin gh-pages`. Esperar a que finalice `pages build and deployment` y comprobar la URL. No subir la carpeta superior de materiales privados. Las opciones de Actions siguientes son alternativas futuras, no la configuración actualmente activada.
+
 ## Opción B: Publicar el proyecto completo usando GitHub Actions
 
 Si subís la estructura completa del proyecto (`entrega/estadistica-paso-a-paso-proyecto-github.zip`, que incluye `site/`, `docs/`, `scripts/` y `tests/`):
