@@ -25,13 +25,16 @@ test('CSV protects whitespace-prefixed formulas and SVG escapes user labels', ()
   assert.ok(!svg.includes('<script>')); assert.ok(!svg.includes('<img'));
 });
 test('CSP permits only hashed bootstrap and self scripts, with no eval or external endpoints', () => {
-  const html=fs.readFileSync('site/index.html','utf8');
-  const inline=html.match(/<script>([\s\S]*?)<\/script>/)[1];
-  const hash=crypto.createHash('sha256').update(inline).digest('base64');
-  assert.ok(html.includes(`'sha256-${hash}'`));
-  assert.ok(html.includes("connect-src 'self'"));
-  assert.ok(!html.includes("'unsafe-eval'"));
-  assert.ok(!html.includes("script-src 'self' 'unsafe-inline'"));
+  for (const relPath of ['site/index.html', 'site/actividades/reparto-media.html']) {
+    const html = fs.readFileSync(relPath, 'utf8');
+    const inline = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+    const hash = crypto.createHash('sha256').update(inline).digest('base64');
+    assert.ok(html.includes(`'sha256-${hash}'`), `Missing CSP hash in ${relPath}`);
+    assert.ok(html.includes("connect-src 'self'"), `Missing connect-src 'self' in ${relPath}`);
+    assert.ok(html.includes('<meta name="referrer" content="no-referrer"'), `Missing no-referrer in ${relPath}`);
+    assert.ok(!html.includes("'unsafe-eval'"), `Unexpected unsafe-eval in ${relPath}`);
+    assert.ok(!html.includes("script-src 'self' 'unsafe-inline'"), `Unexpected unsafe-inline script-src in ${relPath}`);
+  }
 });
 
 test('Preview server denies path escape and does not disclose exception paths', async () => {

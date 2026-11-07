@@ -35,7 +35,11 @@ Para publicar cambios en el sitio, primero validarlos y confirmarlos en `main`, 
 
 ## Devolución y mejoras propuestas
 
-La revisión del usuario señaló que la versión actual se siente demasiado textual y poco entretenida. La propuesta para la siguiente versión es abrir cada lección con una acción breve, explicar lo que ocurre y cerrar con un ejercicio nuevo. El desarrollo de estas experiencias está pendiente.
+La revisión del usuario señaló que la versión 1.0 se siente demasiado textual. La primera actividad visual, «La media como reparto equitativo», ya está integrada desde la lección 7. Abre una página autónoma y ofrece volver a la lección o practicar con los ejercicios existentes. La aplicación principal conserva sus rutas. La actividad también se incluye en el modo sin conexión y en el paquete portátil.
+
+Al cancelar, cada libro pendiente vuelve a su pila de origen. Las pilas reservan espacio para esas devoluciones, de modo que el gráfico conserve su escala de 0 a 10 incluso cuando se retiran y depositan varios libros.
+
+Para las demás lecciones, se propone empezar con una acción breve, explicar lo que ocurre y cerrar con un ejercicio nuevo.
 
 | Experiencia propuesta | Acción del estudiante | Idea que hace visible |
 | --- | --- | --- |
@@ -47,4 +51,4 @@ La revisión del usuario señaló que la versión actual se siente demasiado tex
 | Detectar errores | Reparar escalas, alturas o rótulos incorrectos. | Cómo leer un gráfico con criterio y comprobarlo con la tabla. |
 | Visualizar porcentajes | Sombrear una cuadrícula de cien casillas. | La relación entre una parte del total, su fracción y su porcentaje. |
 
-La prioridad propuesta es desarrollar primero el reparto de la media, las tarjetas de mediana y la construcción de barras. Las animaciones deben poder pausarse, repetirse o recorrerse paso a paso. Cada actividad necesita controles por teclado y una alternativa sin movimiento. El instructivo de calculadora queda pendiente de la marca y el modelo exactos.
+Las próximas prioridades propuestas son las tarjetas de mediana y la construcción de barras. Cada actividad necesita controles por teclado y una alternativa sin movimiento. El instructivo de calculadora queda pendiente de la marca y el modelo exactos.

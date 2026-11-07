@@ -1,0 +1,1928 @@
+<!DOCTYPE html>
+<html lang="es-AR" data-theme="claro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="referrer" content="no-referrer" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-r5PAu73hc6yJrnFROnYLWNwDRZYhSiSRsk23O3BIUFU='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Estadística Paso a Paso: componente interactivo para comprender la media aritmética (promedio) como un reparto equitativo." />
+  <meta name="theme-color" content="#142E43" />
+  <title>Estadística Paso a Paso · La Media como Reparto Equitativo</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/icons/icon.svg" />
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.png" />
+  <link rel="manifest" href="../manifest.webmanifest" />
+  <style>
+    /* ==========================================================================
+       1. VARIABLES CSS (MODO CLARO Y MODO OSCURO) Y SISTEMA DE DISEÑO
+       Skills aplicadas: frontend-design, d3-visualization, accessibility-a11y
+       ========================================================================== */
+    :root {
+      /* Paleta Modo Claro: "Cuaderno de Laboratorio Editorial" (Cálido y legible) */
+      --bg-page: #F9F5EB;
+      --bg-grid-line: rgba(20, 46, 67, 0.055);
+      --bg-surface: #FFFFFF;
+      --bg-surface-elevated: #F2ECE0;
+      --bg-surface-subtle: #EFE7D6;
+      --bg-stage: #FCF9F2;
+
+      /* Texto con contraste WCAG AAA/AA verificado */
+      --text-primary: #142636;
+      --text-secondary: #395065;
+      --text-muted: #5A7184;
+
+      /* Acentos pedagógicos */
+      --accent-primary: #0F5C6E;
+      --accent-primary-hover: #0A4351;
+      --accent-primary-soft: #DCEFF3;
+      --accent-secondary: #C85A32;
+      --accent-secondary-soft: #FBE6DD;
+
+      /* Colores de libros y estados matemáticos */
+      --book-fill-base: #1D6A7D;
+      --book-fill-top: #268299;
+      --book-spine-accent: #F4B942;
+      --book-text: #FFFFFF;
+      --book-excess-fill: #C85A32;
+      --book-excess-border: #963B1B;
+      --book-balanced-fill: #1A7A53;
+      --book-balanced-border: #115438;
+
+      /* Línea de meta (Media = 5 libros) y estados */
+      --target-line: #B85D19;
+      --target-badge-bg: #FFF1E0;
+      --target-badge-text: #8C3F05;
+      --success-bg: #E3F6EC;
+      --success-border: #1A7A53;
+      --success-text: #0F4D33;
+      --hand-bg: #FFF5D6;
+      --hand-border: #C48B16;
+      --hand-text: #5E4000;
+
+      /* Bordes, sombras y foco accesible */
+      --border-color: #D4C9B4;
+      --border-strong: #948771;
+      --focus-ring: #D9531E;
+      --shadow-card: 0 10px 28px rgba(20, 38, 54, 0.08), 0 2px 6px rgba(20, 38, 54, 0.05);
+      --shadow-book: 0 2px 4px rgba(20, 38, 54, 0.16);
+
+      /* Dimensiones del modelo visual de bloques apilados */
+      --book-unit-height: 28px;
+      --max-books-scale: 10;
+      --stack-stage-height: calc(var(--max-books-scale) * var(--book-unit-height) + 24px);
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+
+      /* Tipografías con alternativas seguras del sistema */
+      --font-display: 'Fraunces', 'Georgia', 'Cambria', serif;
+      --font-sans: 'Plus Jakarta Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Cascadia Mono', 'Consolas', monospace;
+    }
+
+    /* Variables para Modo Oscuro explícito */
+    html[data-theme="oscuro"] {
+      --bg-page: #0D1721;
+      --bg-grid-line: rgba(255, 255, 255, 0.045);
+      --bg-surface: #152331;
+      --bg-surface-elevated: #1C2E40;
+      --bg-surface-subtle: #21364B;
+      --bg-stage: #111D29;
+
+      --text-primary: #F2F6FA;
+      --text-secondary: #C5D4E3;
+      --text-muted: #93A8BD;
+
+      --accent-primary: #4CC3DC;
+      --accent-primary-hover: #7AD6EA;
+      --accent-primary-soft: #173B47;
+      --accent-secondary: #F28B66;
+      --accent-secondary-soft: #3D2219;
+
+      --book-fill-base: #237A91;
+      --book-fill-top: #2E95B0;
+      --book-spine-accent: #F7C862;
+      --book-text: #FFFFFF;
+      --book-excess-fill: #D9683F;
+      --book-excess-border: #FFA07A;
+      --book-balanced-fill: #248F63;
+      --book-balanced-border: #63DCA8;
+
+      --target-line: #F5A65B;
+      --target-badge-bg: #362413;
+      --target-badge-text: #FFD1A3;
+      --success-bg: #133628;
+      --success-border: #3CC089;
+      --success-text: #D7F9E9;
+      --hand-bg: #33270E;
+      --hand-border: #E8B239;
+      --hand-text: #FFE7A8;
+
+      --border-color: #2B4157;
+      --border-strong: #587491;
+      --focus-ring: #FF9E44;
+      --shadow-card: 0 12px 32px rgba(0, 0, 0, 0.38), 0 2px 8px rgba(0, 0, 0, 0.25);
+      --shadow-book: 0 2px 5px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Respeto automático por preferencia del sistema si está en modo sistema */
+    @media (prefers-color-scheme: dark) {
+      html[data-theme="sistema"] {
+        --bg-page: #0D1721;
+        --bg-grid-line: rgba(255, 255, 255, 0.045);
+        --bg-surface: #152331;
+        --bg-surface-elevated: #1C2E40;
+        --bg-surface-subtle: #21364B;
+        --bg-stage: #111D29;
+        --text-primary: #F2F6FA;
+        --text-secondary: #C5D4E3;
+        --text-muted: #93A8BD;
+        --accent-primary: #4CC3DC;
+        --accent-primary-hover: #7AD6EA;
+        --accent-primary-soft: #173B47;
+        --accent-secondary: #F28B66;
+        --accent-secondary-soft: #3D2219;
+        --book-fill-base: #237A91;
+        --book-fill-top: #2E95B0;
+        --book-spine-accent: #F7C862;
+        --book-text: #FFFFFF;
+        --book-excess-fill: #D9683F;
+        --book-excess-border: #FFA07A;
+        --book-balanced-fill: #248F63;
+        --book-balanced-border: #63DCA8;
+        --target-line: #F5A65B;
+        --target-badge-bg: #362413;
+        --target-badge-text: #FFD1A3;
+        --success-bg: #133628;
+        --success-border: #3CC089;
+        --success-text: #D7F9E9;
+        --hand-bg: #33270E;
+        --hand-border: #E8B239;
+        --hand-text: #FFE7A8;
+        --border-color: #2B4157;
+        --border-strong: #587491;
+        --focus-ring: #FF9E44;
+        --shadow-card: 0 12px 32px rgba(0, 0, 0, 0.38);
+        --shadow-book: 0 2px 5px rgba(0, 0, 0, 0.4);
+      }
+    }
+
+    /* ==========================================================================
+       2. ESTILOS BASE, ACCESIBILIDAD Y ESTRUCTURA GENERAL
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      font-size: 1.05rem;
+      line-height: 1.58;
+      color: var(--text-primary);
+      background-color: var(--bg-page);
+      background-image:
+        linear-gradient(to right, var(--bg-grid-line) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--bg-grid-line) 1px, transparent 1px);
+      background-size: 24px 24px;
+      min-height: 100vh;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    /* Enlace de salto directo para usuarios de teclado y lectores de pantalla */
+    .skip-link {
+      position: absolute;
+      top: -100px;
+      left: 0.75rem;
+      z-index: 1000;
+      background: var(--accent-primary);
+      color: #FFFFFF;
+      padding: 0.7rem 1.1rem;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .skip-link:focus {
+      top: 0.75rem;
+      outline: 3px solid var(--focus-ring);
+      outline-offset: 2px;
+    }
+
+    /* Foco de teclado altamente visible en todos los controles interactivos */
+    :focus-visible {
+      outline: 3px solid var(--focus-ring);
+      outline-offset: 2px;
+    }
+
+    /* Utilidad para lectores de pantalla */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Cabecera editorial */
+    .site-header {
+      background: var(--bg-surface);
+      border-bottom: 2px solid var(--border-color);
+      padding: 0.85rem 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .header-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      min-width: 0;
+    }
+
+    .brand-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: var(--accent-primary);
+      color: #FFFFFF;
+      display: grid;
+      place-items: center;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 1.15rem;
+      box-shadow: var(--shadow-book);
+      flex-shrink: 0;
+    }
+
+    .brand-title {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: clamp(1.15rem, 2.2vw, 1.55rem);
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+    }
+
+    .brand-subtitle {
+      margin: 0.1rem 0 0;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    /* Botones con área táctil mínima de 44x44px (WCAG 2.2) */
+    .btn {
+      min-height: 44px;
+      padding: 0.5rem 0.85rem;
+      border-radius: var(--radius-sm);
+      border: 2px solid var(--border-strong);
+      background: var(--bg-surface-elevated);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 0.92rem;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: var(--accent-primary-soft);
+      border-color: var(--accent-primary);
+    }
+
+    .btn:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+
+    .btn:disabled {
+      opacity: 0.48;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: var(--accent-primary);
+      color: #FFFFFF;
+      border-color: var(--accent-primary);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--accent-primary-hover);
+      border-color: var(--accent-primary-hover);
+      color: #FFFFFF;
+    }
+
+    /* Contenedor principal */
+    .main-wrapper {
+      max-width: 1120px;
+      margin: 1.25rem auto 2.5rem;
+      padding: 0 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .card {
+      background: var(--bg-surface);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: clamp(1rem, 2.5vw, 1.75rem);
+      box-shadow: var(--shadow-card);
+      min-width: 0;
+    }
+
+    /* ==========================================================================
+       3. INTRODUCCIÓN PEDAGÓGICA Y BANNER DE ESTADO / CELEBRACIÓN
+       ========================================================================== */
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 1.15rem;
+      align-items: center;
+    }
+
+    .hero-grid > * {
+      min-width: 0;
+    }
+
+    @media (max-width: 860px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .kicker {
+      display: inline-block;
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.22rem 0.6rem;
+      border-radius: 999px;
+      background: var(--accent-primary-soft);
+      color: var(--accent-primary);
+      margin-bottom: 0.45rem;
+      max-width: 100%;
+    }
+
+    .section-title {
+      margin: 0 0 0.55rem;
+      font-family: var(--font-display);
+      font-size: clamp(1.3rem, 2.5vw, 1.9rem);
+      line-height: 1.22;
+    }
+
+    .lead-text {
+      margin: 0 0 0.65rem;
+      color: var(--text-secondary);
+    }
+
+    .formula-summary-box {
+      background: var(--bg-surface-elevated);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 0.9rem 1rem;
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+      min-width: 0;
+    }
+
+    .formula-summary-box .formula-line {
+      font-size: 0.98rem;
+      font-weight: 700;
+      margin: 0.2rem 0;
+      overflow-wrap: anywhere;
+    }
+
+    .formula-summary-box .formula-caption {
+      font-family: var(--font-sans);
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      margin-top: 0.35rem;
+    }
+
+    /* Bandeja de estado: libro en mano e instrucciones en vivo */
+    .interaction-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.8rem 1rem;
+      border-radius: var(--radius-md);
+      background: var(--bg-surface-elevated);
+      border: 2px solid var(--border-color);
+      margin-bottom: 1rem;
+    }
+
+    .interaction-bar.has-book-in-hand {
+      background: var(--hand-bg);
+      border-color: var(--hand-border);
+      color: var(--hand-text);
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      font-weight: 700;
+      min-width: 0;
+    }
+
+    .hand-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 0.86rem;
+      background: var(--bg-surface);
+      border: 2px solid var(--border-strong);
+      color: var(--text-primary);
+    }
+
+    /* Banner de Celebración al lograr [5, 5, 5] */
+    .celebration-banner {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.85rem;
+      padding: 1rem 1.15rem;
+      margin-bottom: 1.1rem;
+      border-radius: var(--radius-md);
+      background: var(--success-bg);
+      border: 3px solid var(--success-border);
+      color: var(--success-text);
+    }
+
+    .celebration-banner.is-visible {
+      display: flex;
+      animation: celebrationPulse 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .celebration-message {
+      font-size: clamp(1.02rem, 2vw, 1.28rem);
+      font-weight: 800;
+      margin: 0;
+      letter-spacing: -0.01em;
+    }
+
+    .celebration-sub {
+      margin: 0.2rem 0 0;
+      font-size: 0.92rem;
+      opacity: 0.92;
+    }
+
+    /* ==========================================================================
+       4. ESCENARIO INTERACTIVO: 3 CONTENEDORES (DIVS) DE PILAS DE LIBROS
+       ========================================================================== */
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: 1.65fr 1fr;
+      gap: 1.2rem;
+      align-items: stretch;
+    }
+
+    .workspace-grid > * {
+      min-width: 0;
+    }
+
+    @media (max-width: 940px) {
+      .workspace-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .stacks-stage-wrapper {
+      position: relative;
+      background: var(--bg-stage);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.1rem 0.75rem 0.85rem;
+      min-width: 0;
+    }
+
+    /* Línea horizontal de referencia en altura = 5 libros (Media) */
+    .equilibrium-guide {
+      position: absolute;
+      left: 0.5rem;
+      right: 0.5rem;
+      bottom: calc(126px + 5 * var(--book-unit-height));
+      border-top: 3px dashed var(--target-line);
+      pointer-events: none;
+      z-index: 10;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .equilibrium-label {
+      transform: translateY(-50%);
+      background: var(--target-badge-bg);
+      color: var(--target-badge-text);
+      border: 2px solid var(--target-line);
+      padding: 0.12rem 0.5rem;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 800;
+      box-shadow: var(--shadow-book);
+      max-width: 100%;
+    }
+
+    /* Grilla de las 3 pilas */
+    .stacks-columns {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.75rem;
+      align-items: end;
+    }
+
+    .stacks-columns > * {
+      min-width: 0;
+    }
+
+    /* Tarjeta de cada columna */
+    .stack-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: var(--bg-surface);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 0.65rem 0.45rem;
+      position: relative;
+      min-width: 0;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.25s ease;
+    }
+
+    .stack-column.is-drop-target {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px var(--accent-primary-soft);
+      cursor: pointer;
+    }
+
+    .stack-column.is-balanced {
+      border-color: var(--book-balanced-border);
+    }
+
+    .stack-column.is-celebrating {
+      animation: stackCelebrate 0.75s ease-out;
+    }
+
+    .stack-header {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 0.4rem;
+      min-width: 0;
+    }
+
+    .stack-title {
+      margin: 0;
+      font-weight: 800;
+      font-size: 0.95rem;
+      line-height: 1.2;
+      overflow-wrap: break-word;
+    }
+
+    .stack-counter-badge {
+      display: inline-block;
+      margin-top: 0.2rem;
+      padding: 0.12rem 0.5rem;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 800;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-strong);
+      max-width: 100%;
+    }
+
+    .stack-diff-tag {
+      display: block;
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+      font-family: var(--font-mono);
+      line-height: 1.2;
+      min-height: 1.8em;
+    }
+
+    /* Contenedor de área de apilamiento con escala fija de 10 unidades */
+    .stack-well {
+      width: 100%;
+      height: var(--stack-stage-height);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 4px 2px 0;
+      border-bottom: 4px solid var(--border-strong);
+      position: relative;
+      cursor: pointer;
+      min-width: 0;
+    }
+
+    /* El contenedor (div) cuya altura visual representa la cantidad de libros */
+    .book-stack-container {
+      width: 100%;
+      max-width: 148px;
+      height: calc(var(--book-count, 0) * var(--book-unit-height));
+      display: flex;
+      flex-direction: column-reverse;
+      justify-content: flex-start;
+      align-items: stretch;
+      transition: height 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+      position: relative;
+      min-width: 0;
+    }
+
+    /* Cada bloque de libro apilado */
+    .book-block {
+      height: calc(var(--book-unit-height) - 3px);
+      margin-top: 3px;
+      border-radius: 5px 8px 8px 5px;
+      background: linear-gradient(90deg, var(--book-spine-accent) 0 8px, var(--book-fill-base) 8px 100%);
+      border: 2px solid rgba(10, 25, 38, 0.35);
+      color: var(--book-text);
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 0.45rem 0 0.75rem;
+      cursor: pointer;
+      user-select: none;
+      box-shadow: var(--shadow-book);
+      transition: transform 0.18s ease, background 0.2s ease, box-shadow 0.18s ease;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .book-block-label {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Libros que superan la altura de equilibrio (más de 5) se destacan sutilmente */
+    .book-block.is-above-mean {
+      background: linear-gradient(90deg, var(--book-spine-accent) 0 8px, var(--book-excess-fill) 8px 100%);
+      border-color: var(--book-excess-border);
+    }
+
+    /* Cuando las 3 pilas alcanzan 5 libros */
+    .stack-column.is-balanced .book-block {
+      background: linear-gradient(90deg, var(--book-spine-accent) 0 8px, var(--book-balanced-fill) 8px 100%);
+      border-color: var(--book-balanced-border);
+    }
+
+    .book-block:hover {
+      transform: translateY(-2px) scale(1.02);
+    }
+
+    /* Libro seleccionado para mover */
+    .book-block.is-selected {
+      transform: translateY(-7px) scale(1.03);
+      outline: 3px solid var(--focus-ring);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.28);
+      z-index: 5;
+    }
+
+    /* Controles de teclado +/- por pila */
+    .stack-controls {
+      margin-top: 0.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      width: 100%;
+    }
+
+    .btn-step {
+      flex: 1 1 0;
+      min-width: 0;
+      max-width: 58px;
+      min-height: 44px;
+      padding: 0.25rem;
+      font-family: var(--font-mono);
+      font-size: 1.15rem;
+      font-weight: 800;
+      border-radius: var(--radius-sm);
+    }
+
+    /* Ajustes específicos para pantallas estrechas (320px a 480px) sin desborde horizontal */
+    @media (max-width: 480px) {
+      .site-header {
+        padding: 0.65rem 0.6rem;
+      }
+
+      .main-wrapper {
+        padding: 0 0.5rem;
+        margin: 0.85rem auto 2rem;
+      }
+
+      .card {
+        padding: 0.8rem 0.65rem;
+        border-radius: var(--radius-md);
+      }
+
+      .stacks-stage-wrapper {
+        padding: 0.9rem 0.35rem 0.65rem;
+      }
+
+      .stacks-columns {
+        gap: 0.3rem;
+      }
+
+      .stack-column {
+        padding: 0.45rem 0.22rem;
+        border-radius: 10px;
+      }
+
+      .stack-title {
+        font-size: 0.76rem;
+      }
+
+      .stack-counter-badge {
+        font-size: 0.72rem;
+        padding: 0.1rem 0.32rem;
+      }
+
+      .stack-diff-tag {
+        font-size: 0.64rem;
+      }
+
+      .book-block {
+        padding: 0 0.2rem 0 0.5rem;
+        font-size: 0.68rem;
+      }
+
+      .book-block-icon {
+        display: none;
+      }
+
+      .stack-controls {
+        gap: 0.22rem;
+        margin-top: 0.45rem;
+      }
+
+      .btn-step {
+        font-size: 1rem;
+        padding: 0;
+      }
+
+      .equilibrium-guide {
+        bottom: calc(114px + 5 * var(--book-unit-height));
+      }
+
+      .equilibrium-label {
+        font-size: 0.66rem;
+        padding: 0.1rem 0.38rem;
+      }
+    }
+
+    /* ==========================================================================
+       5. PANEL LATERAL D3-VIZ (GRÁFICO DE NIVELACIÓN Y DESVIACIONES EN VIVO)
+       ========================================================================== */
+    .d3-panel {
+      background: var(--bg-stage);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.85rem;
+      min-width: 0;
+    }
+
+    .d3-panel-title {
+      margin: 0;
+      font-size: 1.02rem;
+      font-weight: 800;
+    }
+
+    .d3-panel-desc {
+      margin: 0.2rem 0 0;
+      font-size: 0.86rem;
+      color: var(--text-secondary);
+    }
+
+    .svg-chart-container {
+      width: 100%;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 0.45rem;
+    }
+
+    .svg-chart-container svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      overflow: visible;
+    }
+
+    .math-equation-live {
+      background: var(--bg-surface);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 0.7rem 0.8rem;
+      font-family: var(--font-mono);
+      font-size: 0.86rem;
+      overflow-wrap: anywhere;
+    }
+
+    .math-equation-live strong {
+      color: var(--accent-primary);
+    }
+
+    /* ==========================================================================
+       6. COMPONENTE DESPLEGABLE <details> CON EL TEXTO TEÓRICO DEL SITIO ACTUAL
+       ========================================================================== */
+    .theory-details {
+      background: var(--bg-surface);
+      border: 2px solid var(--border-strong);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .theory-summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 1rem 1.2rem;
+      font-family: var(--font-display);
+      font-size: clamp(1.02rem, 2vw, 1.25rem);
+      font-weight: 800;
+      background: var(--bg-surface-elevated);
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      min-height: 54px;
+      transition: background-color 0.18s ease;
+    }
+
+    .theory-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .theory-summary:hover {
+      background: var(--accent-primary-soft);
+    }
+
+    .summary-chevron {
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      background: var(--bg-surface);
+      border: 2px solid var(--border-strong);
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .theory-details[open] .summary-chevron {
+      transform: rotate(180deg);
+    }
+
+    .theory-content {
+      padding: 1.15rem 1.2rem 1.4rem;
+      border-top: 2px solid var(--border-color);
+      display: grid;
+      gap: 1rem;
+      min-width: 0;
+    }
+
+    .theory-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+      gap: 1rem;
+    }
+
+    .theory-box {
+      background: var(--bg-stage);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 0.9rem 1rem;
+      min-width: 0;
+    }
+
+    .theory-box h3, .theory-box h4 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      font-family: var(--font-display);
+    }
+
+    .symbol-list {
+      margin: 0;
+      padding-left: 1.15rem;
+    }
+
+    .symbol-list li {
+      margin-bottom: 0.45rem;
+    }
+
+    .code-formula {
+      display: inline-block;
+      padding: 0.12rem 0.45rem;
+      border-radius: 6px;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-strong);
+      font-family: var(--font-mono);
+      font-weight: 700;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+    }
+
+    /* ==========================================================================
+       7. ANIMACIONES Y RESPETO ESTRICTO DE PREFERS-REDUCED-MOTION
+       ========================================================================== */
+    @keyframes celebrationPulse {
+      0% {
+        transform: scale(0.97);
+        opacity: 0.4;
+      }
+      55% {
+        transform: scale(1.015);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes stackCelebrate {
+      0% { transform: translateY(0); }
+      40% { transform: translateY(-8px); }
+      100% { transform: translateY(0); }
+    }
+
+    /* Si el usuario prefiere reducir movimiento en su sistema operativo */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+      }
+
+      .book-block:hover,
+      .book-block.is-selected {
+        transform: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#actividad-reparto">Saltar al repartidor interactivo de libros</a>
+
+  <!-- CABECERA DEL COMPONENTE CON REGRESO DIRECTO A LA LECCIÓN Y A LA PORTADA -->
+  <header class="site-header" role="banner">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-badge" aria-hidden="true">x̄</div>
+        <div>
+          <h1 class="brand-title">Estadística Paso a Paso</h1>
+          <p class="brand-subtitle">2.º año de secundaria · La Media Aritmética como Reparto Equitativo</p>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <a class="btn" id="link-back-lesson" href="../index.html#/aprende/L07">
+          ← Volver a Lección 7
+        </a>
+        <button type="button" class="btn" id="btn-reset" aria-label="Reiniciar las pilas a 2, 5 y 8 libros">
+          ↺ Reiniciar (2, 5 y 8)
+        </button>
+        <button type="button" class="btn" id="btn-theme-toggle" aria-pressed="false" aria-label="Cambiar entre modo claro y modo oscuro">
+          ☾ Modo oscuro
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- REGIÓN VIVA DE ANUNCIOS PARA LECTORES DE PANTALLA -->
+  <div id="sr-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+  <main id="actividad-reparto" class="main-wrapper" role="main">
+    <!-- BLOQUE 1: OBJETIVO OBSERVABLE Y CONSIGNA -->
+    <section class="card" aria-labelledby="titulo-objetivo">
+      <div class="hero-grid">
+        <div>
+          <span class="kicker">Micro-experiencia interactiva · Unidad 4: Medidas de tendencia central</span>
+          <h2 id="titulo-objetivo" class="section-title">Entender la media como un reparto equitativo</h2>
+          <p class="lead-text">
+            <strong>Objetivo:</strong> Comprobar visualmente que calcular el <strong>promedio (media aritmética)</strong> consiste en conservar el total de datos y repartirlo en partes iguales entre todas las columnas.
+          </p>
+          <p class="lead-text" style="margin-bottom:0;">
+            <strong>Cómo interactuar:</strong> Hacé clic en un libro de una pila alta y luego hacé clic en una pila más baja para pasarlo (o usá los botones <strong>−</strong> y <strong>+</strong> con el teclado). Buscá que las 3 pilas queden a la misma altura.
+          </p>
+        </div>
+
+        <div class="formula-summary-box" aria-label="Resumen numérico del reparto">
+          <div class="formula-line">Datos iniciales: 2, 5 y 8 libros</div>
+          <div class="formula-line">Total conservado: <span id="summary-total">2 + 5 + 8 = 15</span> libros</div>
+          <div class="formula-line">Cantidad de pilas (n): 3 pilas</div>
+          <p class="formula-caption" style="margin-bottom:0;">
+            Al mover un libro de una pila a otra, la suma total de <strong>15 libros</strong> nunca cambia: solo se nivela su distribución.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- BLOQUE 2: ESCENARIO DE PILAS INTERACTIVAS Y VISUALIZACIÓN SINCRONIZADA -->
+    <section class="card" aria-labelledby="titulo-escenario">
+      <h2 id="titulo-escenario" class="sr-only">Escenario interactivo de las 3 pilas de libros</h2>
+
+      <!-- Banner de celebración: se activa al lograr 5, 5 y 5 -->
+      <div id="celebration-banner" class="celebration-banner" role="status" aria-live="polite">
+        <div>
+          <p class="celebration-message" id="celebration-text">
+            ¡Reparto equitativo logrado! Esto es la Media: (2+5+8) ÷ 3 = 5
+          </p>
+          <p class="celebration-sub">
+            Los 15 libros totales quedaron repartidos en 3 pilas iguales de 5 libros cada una.
+          </p>
+        </div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <button type="button" class="btn btn-primary" id="btn-replay">
+            Probar de nuevo desde 2, 5 y 8
+          </button>
+          <a class="btn" href="../index.html#/practica/medidas/G4-01">
+            Ir a practicar ejercicios de Media →
+          </a>
+        </div>
+      </div>
+
+      <!-- Barra de estado interactivo / bandeja de libro en mano -->
+      <div id="interaction-bar" class="interaction-bar" role="region" aria-label="Estado del movimiento actual">
+        <div class="status-indicator">
+          <span class="hand-pill" id="hand-indicator">En mano: 0 libros</span>
+          <span id="instruction-live">
+            Seleccioná un libro de una pila alta (como la Pila 3, que tiene 8 libros) y pasalo a una pila baja (como la Pila 1, que tiene 2 libros).
+          </span>
+        </div>
+        <button type="button" class="btn" id="btn-cancel-hand" hidden aria-label="Devolver el libro en mano a su pila de origen">
+          Cancelar selección (Esc)
+        </button>
+      </div>
+
+      <div class="workspace-grid">
+        <!-- Escenario principal con los 3 contenedores (divs) -->
+        <div class="stacks-stage-wrapper">
+          <!-- Línea guía de la Media en altura = 5 libros -->
+          <div class="equilibrium-guide" aria-hidden="true">
+            <span class="equilibrium-label">Meta: Media = 5 libros</span>
+          </div>
+
+          <div class="stacks-columns" id="stacks-columns">
+            <!-- PILA 1 (Inicialmente 2 libros) -->
+            <div class="stack-column" id="column-0" data-stack-index="0">
+              <div class="stack-header">
+                <h3 class="stack-title" id="stack-title-0">Pila 1</h3>
+                <span class="stack-counter-badge" id="stack-count-0">2 libros</span>
+                <span class="stack-diff-tag" id="stack-diff-0">Faltan 3 para 5</span>
+              </div>
+
+              <div class="stack-well" id="stack-well-0" data-stack-index="0" role="group" aria-labelledby="stack-title-0">
+                <!-- Contenedor (div) #1 con altura visual proporcional a sus libros -->
+                <div class="book-stack-container" id="stack-container-0" data-stack-index="0" style="--book-count: 2;" aria-label="Contenedor de Pila 1 con 2 libros"></div>
+              </div>
+
+              <div class="stack-controls">
+                <button type="button" class="btn btn-step" id="btn-minus-0" data-action="minus" data-stack-index="0" aria-label="Quitar un libro de la Pila 1">
+                  −
+                </button>
+                <button type="button" class="btn btn-step" id="btn-plus-0" data-action="plus" data-stack-index="0" aria-label="Agregar un libro a la Pila 1">
+                  +
+                </button>
+              </div>
+            </div>
+
+            <!-- PILA 2 (Inicialmente 5 libros) -->
+            <div class="stack-column" id="column-1" data-stack-index="1">
+              <div class="stack-header">
+                <h3 class="stack-title" id="stack-title-1">Pila 2</h3>
+                <span class="stack-counter-badge" id="stack-count-1">5 libros</span>
+                <span class="stack-diff-tag" id="stack-diff-1">En la media (5)</span>
+              </div>
+
+              <div class="stack-well" id="stack-well-1" data-stack-index="1" role="group" aria-labelledby="stack-title-1">
+                <!-- Contenedor (div) #2 con altura visual proporcional a sus libros -->
+                <div class="book-stack-container" id="stack-container-1" data-stack-index="1" style="--book-count: 5;" aria-label="Contenedor de Pila 2 con 5 libros"></div>
+              </div>
+
+              <div class="stack-controls">
+                <button type="button" class="btn btn-step" id="btn-minus-1" data-action="minus" data-stack-index="1" aria-label="Quitar un libro de la Pila 2">
+                  −
+                </button>
+                <button type="button" class="btn btn-step" id="btn-plus-1" data-action="plus" data-stack-index="1" aria-label="Agregar un libro a la Pila 2">
+                  +
+                </button>
+              </div>
+            </div>
+
+            <!-- PILA 3 (Inicialmente 8 libros) -->
+            <div class="stack-column" id="column-2" data-stack-index="2">
+              <div class="stack-header">
+                <h3 class="stack-title" id="stack-title-2">Pila 3</h3>
+                <span class="stack-counter-badge" id="stack-count-2">8 libros</span>
+                <span class="stack-diff-tag" id="stack-diff-2">Sobran 3 sobre 5</span>
+              </div>
+
+              <div class="stack-well" id="stack-well-2" data-stack-index="2" role="group" aria-labelledby="stack-title-2">
+                <!-- Contenedor (div) #3 con altura visual proporcional a sus libros -->
+                <div class="book-stack-container" id="stack-container-2" data-stack-index="2" style="--book-count: 8;" aria-label="Contenedor de Pila 3 con 8 libros"></div>
+              </div>
+
+              <div class="stack-controls">
+                <button type="button" class="btn btn-step" id="btn-minus-2" data-action="minus" data-stack-index="2" aria-label="Quitar un libro de la Pila 3">
+                  −
+                </button>
+                <button type="button" class="btn btn-step" id="btn-plus-2" data-action="plus" data-stack-index="2" aria-label="Agregar un libro a la Pila 3">
+                  +
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel lateral de visualización de datos (estilo D3 escalado) -->
+        <aside class="d3-panel" aria-label="Gráfico de barras y balance de desviaciones respecto de la media">
+          <div>
+            <h3 class="d3-panel-title">Balance visual hacia la media (x̄ = 5)</h3>
+            <p class="d3-panel-desc">
+              Mirá cómo los libros que sobran por encima de 5 en la Pila 3 compensan exactamente los que faltan en la Pila 1:
+            </p>
+          </div>
+
+          <div class="svg-chart-container">
+            <svg id="d3-balance-svg" viewBox="0 0 320 220" role="img" aria-labelledby="svg-balance-title svg-balance-desc">
+              <title id="svg-balance-title">Gráfico comparativo de alturas de las 3 pilas y línea de la media en 5 libros</title>
+              <desc id="svg-balance-desc">Muestra tres barras verticales correspondientes a las pilas 1, 2 y 3 comparadas con la línea horizontal del promedio en 5 libros.</desc>
+              <g id="svg-grid-layer"></g>
+              <g id="svg-bars-layer"></g>
+              <g id="svg-mean-layer"></g>
+            </svg>
+          </div>
+
+          <div class="math-equation-live" id="math-equation-live">
+            <div><strong>Estado actual de las pilas:</strong> <span id="live-stacks-tuple">2, 5 y 8 libros</span></div>
+            <div style="margin-top:0.3rem;"><strong>Cuenta del promedio:</strong> <span id="live-mean-calc">(2 + 5 + 8) ÷ 3 = 15 ÷ 3 = 5 libros</span></div>
+            <div style="margin-top:0.3rem;"><strong>Desviaciones respecto de 5:</strong> <span id="live-deviations">−3, 0 y +3 (suman 0)</span></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- BLOQUE 3: DESPLEGABLE <details> CON EL TEXTO TEÓRICO DEL SITIO ACTUAL -->
+    <details class="theory-details" id="details-formal-theory">
+      <summary class="theory-summary">
+        <span>Quiero entender más: la fórmula formal</span>
+        <span class="summary-chevron" aria-hidden="true">▼</span>
+      </summary>
+
+      <div class="theory-content">
+        <div class="theory-box">
+          <h3>1. Primero con palabras y con números (Lección 7: Media aritmética)</h3>
+          <p>
+            La <strong>media aritmética</strong> es el promedio que usamos habitualmente: se obtiene sumando todos los datos y dividiendo esa suma por la cantidad total de observaciones. Representa qué valor le tocaría a cada uno si el total se repartiera en partes iguales:
+          </p>
+          <p>
+            <span class="code-formula">promedio = suma de todos los datos dividida por la cantidad de datos</span>
+          </p>
+          <p style="margin-bottom:0;">
+            En esta actividad tenemos <strong>3 pilas</strong> con <strong>2, 5 y 8 libros</strong>. La suma total es <span class="code-formula">2 + 5 + 8 = 15 libros</span> y, como hay <span class="code-formula">3 pilas</span>, hacemos <span class="code-formula">(2 + 5 + 8) ÷ 3 = 15 ÷ 3 = 5 libros</span>. Recordá usar <strong>paréntesis</strong> en la calculadora si escribís toda la cuenta en línea para que divida toda la suma y no solo el último número.
+          </p>
+        </div>
+
+        <div class="theory-grid">
+          <div class="theory-box">
+            <h4>2. ¿Qué significa cada símbolo en la fórmula?</h4>
+            <ul class="symbol-list">
+              <li>
+                <span class="code-formula">x̄</span> se lee <strong>«equis barra»</strong> y representa la <strong>media aritmética o promedio</strong>.
+              </li>
+              <li>
+                <span class="code-formula">n</span> se lee <strong>«ene»</strong> e indica la <strong>cantidad total de datos u observaciones</strong> (en nuestro reparto de 3 pilas, <span class="code-formula">n = 3</span>).
+              </li>
+              <li>
+                <span class="code-formula">x</span> (o <span class="code-formula">xᵢ</span>) representa <strong>cada valor observado</strong> de la variable cuantitativa (por ejemplo: 2 libros, 5 libros, 8 libros).
+              </li>
+              <li>
+                <span class="code-formula">Σ</span> se lee <strong>«sumatoria»</strong> (letra griega sigma mayúscula) y es una forma abreviada de pedir <em>«sumá todos los términos indicados»</em>.
+              </li>
+            </ul>
+            <p style="margin-bottom:0;">
+              <strong>Fórmula formal para datos sueltos:</strong><br />
+              <span class="code-formula">x̄ = (x₁ + x₂ + ... + xₙ) ÷ n = (Σx) ÷ n</span>
+            </p>
+          </div>
+
+          <div class="theory-box">
+            <h4>3. Media desde una tabla de frecuencias</h4>
+            <p>
+              Cuando los datos están organizados en una tabla de frecuencias, en lugar de sumar <em>«1 + 1 + 1 + 2 + 2...»</em> uno por uno, multiplicamos cada valor por la cantidad de veces que se repite (<span class="code-formula">x · f</span>), sumamos todos esos productos y dividimos por el total de datos <span class="code-formula">n</span> (<strong>¡nunca por la cantidad de filas!</strong>):
+            </p>
+            <p>
+              <span class="code-formula">x̄ = Σ(x · f) ÷ n</span>
+            </p>
+            <p style="margin-bottom:0;">
+              <strong>Ejemplo integrador del sitio (n = 20 estudiantes):</strong><br />
+              Valores <span class="code-formula">x = 0, 1, 2, 3, 4</span> libros con frecuencias <span class="code-formula">f = 3, 8, 6, 2, 1</span>.<br />
+              Productos <span class="code-formula">x · f</span>: <span class="code-formula">0×3=0; 1×8=8; 2×6=12; 3×2=6; 4×1=4</span>.<br />
+              Suma total = <span class="code-formula">30 libros</span>. Media: <span class="code-formula">x̄ = 30 ÷ 20 = 1,5 libros</span>.<br />
+              <em>Interpretación:</em> que la media sea <span class="code-formula">1,5 libros</span> no significa partir un libro al medio; indica el valor de equilibrio si los 30 libros se repartieran en partes iguales entre los 20 estudiantes.
+            </p>
+          </div>
+        </div>
+      </div>
+    </details>
+  </main>
+
+  <script>
+    /* ==========================================================================
+       LÓGICA INTERACTIVA EN JAVASCRIPT VANILLA
+       Componente: La Media como Reparto Equitativo (2, 5 y 8 libros -> 5, 5 y 5)
+       ========================================================================== */
+    (function () {
+      'use strict';
+
+      // Configuración matemática inicial: 3 pilas con 2, 5 y 8 libros (Total = 15, Media = 5)
+      const INITIAL_COUNTS = [2, 5, 8];
+      const TARGET_MEAN = 5;
+      const MAX_SCALE_BOOKS = 10;
+
+      // Estado reactivo del componente
+      const state = {
+        counts: [...INITIAL_COUNTS], // Cantidad actual de libros en cada una de las 3 pilas
+        handOrigins: [],             // Pila de índices de origen de cada libro retirado con '-'
+        selectedSourceStack: null,   // Índice de la pila (0, 1 o 2) donde se seleccionó un libro con clic
+        theme: 'claro'               // Tema visual activo ('claro' u 'oscuro')
+      };
+
+      // Sincronizar tema inicial si existe preferencia guardada en el sitio principal
+      try {
+        const baseScopePath = new URL('..', location.href).pathname;
+        const raw = localStorage.getItem('estadistica_paso_a_paso_v1:' + baseScopePath);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && parsed.appearance && parsed.appearance.theme === 'oscuro') {
+            state.theme = 'oscuro';
+            document.documentElement.setAttribute('data-theme', 'oscuro');
+          }
+        }
+      } catch (_e) {}
+
+      // Referencias a elementos del DOM
+      const stackColumns = [
+        document.getElementById('column-0'),
+        document.getElementById('column-1'),
+        document.getElementById('column-2')
+      ];
+      const stackWells = [
+        document.getElementById('stack-well-0'),
+        document.getElementById('stack-well-1'),
+        document.getElementById('stack-well-2')
+      ];
+      const stackContainers = [
+        document.getElementById('stack-container-0'),
+        document.getElementById('stack-container-1'),
+        document.getElementById('stack-container-2')
+      ];
+      const stackCountBadges = [
+        document.getElementById('stack-count-0'),
+        document.getElementById('stack-count-1'),
+        document.getElementById('stack-count-2')
+      ];
+      const stackDiffTags = [
+        document.getElementById('stack-diff-0'),
+        document.getElementById('stack-diff-1'),
+        document.getElementById('stack-diff-2')
+      ];
+      const minusButtons = [
+        document.getElementById('btn-minus-0'),
+        document.getElementById('btn-minus-1'),
+        document.getElementById('btn-minus-2')
+      ];
+      const plusButtons = [
+        document.getElementById('btn-plus-0'),
+        document.getElementById('btn-plus-1'),
+        document.getElementById('btn-plus-2')
+      ];
+
+      const celebrationBanner = document.getElementById('celebration-banner');
+      const interactionBar = document.getElementById('interaction-bar');
+      const handIndicator = document.getElementById('hand-indicator');
+      const instructionLive = document.getElementById('instruction-live');
+      const btnCancelHand = document.getElementById('btn-cancel-hand');
+      const btnReset = document.getElementById('btn-reset');
+      const btnReplay = document.getElementById('btn-replay');
+      const btnThemeToggle = document.getElementById('btn-theme-toggle');
+      const srAnnouncer = document.getElementById('sr-announcer');
+
+      const liveStacksTuple = document.getElementById('live-stacks-tuple');
+      const liveMeanCalc = document.getElementById('live-mean-calc');
+      const liveDeviations = document.getElementById('live-deviations');
+
+      const svgGridLayer = document.getElementById('svg-grid-layer');
+      const svgBarsLayer = document.getElementById('svg-bars-layer');
+      const svgMeanLayer = document.getElementById('svg-mean-layer');
+
+      /**
+       * Emite un mensaje accesible a lectores de pantalla mediante aria-live="polite".
+       * @param {string} message Mensaje descriptivo de la acción realizada.
+       */
+      function announceToScreenReader(message) {
+        if (!srAnnouncer) return;
+        srAnnouncer.textContent = '';
+        window.setTimeout(function () {
+          srAnnouncer.textContent = message;
+        }, 25);
+      }
+
+      /**
+       * Verifica si las 3 pilas alcanzaron el reparto equitativo exacto (5 libros cada una).
+       * @returns {boolean}
+       */
+      function isEquilibriumReached() {
+        return (
+          state.handOrigins.length === 0 &&
+          state.counts.every(function (c) { return c === TARGET_MEAN; })
+        );
+      }
+
+      /**
+       * Devuelve el índice de la pila más alta distinta de `excludeIndex`.
+       * @param {number} excludeIndex Índice de pila a excluir.
+       * @returns {number} Índice de la pila con mayor cantidad de libros.
+       */
+      function findTallestOtherStack(excludeIndex) {
+        let bestIdx = -1;
+        let maxVal = 0;
+        for (let i = 0; i < state.counts.length; i++) {
+          if (i === excludeIndex) continue;
+          if (state.counts[i] > maxVal) {
+            maxVal = state.counts[i];
+            bestIdx = i;
+          }
+        }
+        return bestIdx;
+      }
+
+      /**
+       * Restaura el foco de teclado al libro superior de la pila indicada (o a su botón + si quedó vacía).
+       * Evita que document.activeElement caiga en BODY al reconstruir los bloques del DOM.
+       * @param {number|null} stackIdx Índice de la pila cuyo libro superior debe recibir foco.
+       */
+      function restoreKeyboardFocus(stackIdx) {
+        if (stackIdx === null || stackIdx === undefined) return;
+        const container = stackContainers[stackIdx];
+        if (container && container.lastElementChild) {
+          container.lastElementChild.focus();
+        } else if (plusButtons[stackIdx] && !plusButtons[stackIdx].disabled) {
+          plusButtons[stackIdx].focus();
+        } else if (stackWells[stackIdx]) {
+          stackWells[stackIdx].focus();
+        }
+      }
+
+      function canPlaceBook(stackIdx) {
+        // El libro que se deposita deja la mano. Reservamos espacio para los
+        // demás libros que todavía podrían volver a esta pila al cancelar.
+        const reserved = state.handOrigins.slice(0, -1).filter(function (origin) {
+          return origin === stackIdx;
+        }).length;
+        return state.counts[stackIdx] + reserved < MAX_SCALE_BOOKS;
+      }
+
+      /**
+       * Maneja el clic o activación con teclado (Enter/Espacio) sobre un libro o sobre una pila:
+       * - Si no hay libro seleccionado ni en mano: selecciona el libro superior de la pila elegida.
+       * - Si ya hay un libro seleccionado (o en mano) y se elige otra pila: mueve el libro a esa pila destino.
+       * @param {number} stackIdx Índice de la pila (0, 1 o 2).
+       * @param {boolean} [keepBookFocus] Si es true, conserva el foco en el libro superior de la pila activada.
+       */
+      function handleStackOrBookClick(stackIdx, keepBookFocus) {
+        const focusTargetIdx = keepBookFocus ? stackIdx : null;
+
+        // Caso 1: Ya hay un libro en mano por botón '-' -> soltarlo en la pila clicada
+        if (state.handOrigins.length > 0) {
+          if (!canPlaceBook(stackIdx)) {
+            const message = 'La Pila ' + (stackIdx + 1) + ' necesita espacio para los libros que podrían volver al cancelar. Elegí otra pila.';
+            instructionLive.textContent = message;
+            announceToScreenReader(message);
+            return;
+          }
+          state.handOrigins.pop();
+          state.counts[stackIdx] += 1;
+          state.selectedSourceStack = null;
+          renderAll(
+            'Se ubicó 1 libro en la Pila ' + (stackIdx + 1) + '. Ahora tiene ' + state.counts[stackIdx] + ' libros.',
+            focusTargetIdx
+          );
+          return;
+        }
+
+        // Caso 2: No hay pila de origen seleccionada -> seleccionar el libro superior de esta pila
+        if (state.selectedSourceStack === null) {
+          if (state.counts[stackIdx] <= 0) {
+            announceToScreenReader('La Pila ' + (stackIdx + 1) + ' no tiene libros para mover.');
+            return;
+          }
+          state.selectedSourceStack = stackIdx;
+          renderAll(
+            'Libro seleccionado en la Pila ' + (stackIdx + 1) +
+            ' (' + state.counts[stackIdx] + ' libros). Ahora hacé clic en una pila más baja para moverlo allí.',
+            focusTargetIdx
+          );
+          return;
+        }
+
+        // Caso 3: Se activó la misma pila de origen -> cancelar selección
+        if (state.selectedSourceStack === stackIdx) {
+          state.selectedSourceStack = null;
+          renderAll('Selección cancelada en la Pila ' + (stackIdx + 1) + '.', focusTargetIdx);
+          return;
+        }
+
+        // Caso 4: Se activó una pila destino distinta -> transferir 1 libro de origen a destino
+        const fromIdx = state.selectedSourceStack;
+        if (state.counts[fromIdx] > 0 && state.counts[stackIdx] < MAX_SCALE_BOOKS) {
+          state.counts[fromIdx] -= 1;
+          state.counts[stackIdx] += 1;
+          state.selectedSourceStack = null;
+          renderAll(
+            'Se movió 1 libro de la Pila ' + (fromIdx + 1) + ' a la Pila ' + (stackIdx + 1) + '. ' +
+            'Alturas actuales: ' + state.counts.join(', ') + ' libros.',
+            focusTargetIdx
+          );
+        }
+      }
+
+      /**
+       * Maneja los botones accesibles '-' y '+' de cada pila conservando siempre el total de 15 libros
+       * y registrando la pila exacta de origen en `state.handOrigins`.
+       * @param {'minus'|'plus'} action Acción del botón.
+       * @param {number} stackIdx Índice de la pila (0, 1 o 2).
+       */
+      function handleStepButton(action, stackIdx) {
+        if (action === 'minus') {
+          if (state.counts[stackIdx] <= 0) return;
+          state.selectedSourceStack = null;
+          state.counts[stackIdx] -= 1;
+          state.handOrigins.push(stackIdx);
+          const inHand = state.handOrigins.length;
+          renderAll(
+            'Quitaste 1 libro de la Pila ' + (stackIdx + 1) + ' (quedan ' + state.counts[stackIdx] + '). ' +
+            'Tenés ' + inHand + (inHand === 1 ? ' libro en mano' : ' libros en mano') +
+            ': usá el botón + en una pila más baja para ubicarlo.'
+          );
+          return;
+        }
+
+        if (action === 'plus') {
+          if (!canPlaceBook(stackIdx)) return;
+
+          // Si había libros tomados con '-', ubicamos uno en esta pila
+          if (state.handOrigins.length > 0) {
+            state.handOrigins.pop();
+            state.counts[stackIdx] += 1;
+            state.selectedSourceStack = null;
+            renderAll(
+              'Agregaste 1 libro en la Pila ' + (stackIdx + 1) + ' (ahora tiene ' + state.counts[stackIdx] + ' libros).'
+            );
+            return;
+          }
+
+          // Si había una pila seleccionada con clic, transferimos desde esa pila
+          if (state.selectedSourceStack !== null && state.selectedSourceStack !== stackIdx) {
+            const fromIdx = state.selectedSourceStack;
+            if (state.counts[fromIdx] > 0) {
+              state.counts[fromIdx] -= 1;
+              state.counts[stackIdx] += 1;
+              state.selectedSourceStack = null;
+              renderAll(
+                'Transferiste 1 libro de la Pila ' + (fromIdx + 1) + ' a la Pila ' + (stackIdx + 1) + '.'
+              );
+              return;
+            }
+          }
+
+          // Si no había libro en mano, tomamos 1 libro automáticamente de la pila más alta disponible
+          const donorIdx = findTallestOtherStack(stackIdx);
+          if (donorIdx !== -1 && state.counts[donorIdx] > 0) {
+            state.counts[donorIdx] -= 1;
+            state.counts[stackIdx] += 1;
+            state.selectedSourceStack = null;
+            renderAll(
+              'Se pasó 1 libro desde la Pila ' + (donorIdx + 1) + ' hacia la Pila ' + (stackIdx + 1) + '. ' +
+              'Alturas actuales: ' + state.counts.join(', ') + ' libros.'
+            );
+          }
+        }
+      }
+
+      /**
+       * Cancela cualquier selección o libro en mano devolviéndolo exactamente a su pila de origen,
+       * preservando intactos los movimientos anteriores ya completados.
+       */
+      function cancelSelectionOrHand() {
+        let lastOrigin = state.selectedSourceStack;
+        while (state.handOrigins.length > 0) {
+          const originIdx = state.handOrigins.pop();
+          state.counts[originIdx] += 1;
+          lastOrigin = originIdx;
+        }
+        state.selectedSourceStack = null;
+        renderAll(
+          'Se canceló la selección y el libro volvió a su pila de origen. Alturas actuales: ' +
+          state.counts.join(', ') + ' libros.',
+          lastOrigin
+        );
+      }
+
+      /**
+       * Reinicia las 3 pilas a los valores originales: 2, 5 y 8 libros.
+       */
+      function resetStacks() {
+        state.counts = [...INITIAL_COUNTS];
+        state.handOrigins = [];
+        state.selectedSourceStack = null;
+        renderAll('Pilas reiniciadas a sus alturas originales: 2, 5 y 8 libros.');
+      }
+
+      /**
+       * Renderiza el gráfico SVG lateral siguiendo el patrón de escalas y unión de datos de D3.
+       */
+      function renderD3BalanceChart() {
+        const width = 320;
+        const height = 220;
+        const margin = { top: 22, right: 24, bottom: 34, left: 36 };
+        const plotW = width - margin.left - margin.right;
+        const plotH = height - margin.top - margin.bottom;
+
+        // Escala lineal Y: dominio [0, 10] libros -> rango [margin.top + plotH, margin.top]
+        function yScale(val) {
+          return margin.top + plotH - (val / MAX_SCALE_BOOKS) * plotH;
+        }
+
+        // 1. Capa de grilla horizontal (0, 2, 4, 6, 8, 10)
+        svgGridLayer.innerHTML = '';
+        for (let tick = 0; tick <= MAX_SCALE_BOOKS; tick += 2) {
+          const y = yScale(tick);
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', String(margin.left));
+          line.setAttribute('x2', String(width - margin.right));
+          line.setAttribute('y1', String(y));
+          line.setAttribute('y2', String(y));
+          line.setAttribute('stroke', 'var(--border-color)');
+          line.setAttribute('stroke-width', tick === 0 ? '2' : '1');
+          svgGridLayer.appendChild(line);
+
+          const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          label.setAttribute('x', String(margin.left - 8));
+          label.setAttribute('y', String(y + 4));
+          label.setAttribute('text-anchor', 'end');
+          label.setAttribute('fill', 'var(--text-muted)');
+          label.setAttribute('font-family', 'var(--font-mono)');
+          label.setAttribute('font-size', '11');
+          label.textContent = String(tick);
+          svgGridLayer.appendChild(label);
+        }
+
+        // 2. Capa de barras de datos para las 3 pilas
+        svgBarsLayer.innerHTML = '';
+        const stepX = plotW / 3;
+        const barW = 46;
+        const balanced = isEquilibriumReached();
+
+        state.counts.forEach(function (count, idx) {
+          const centerX = margin.left + stepX * idx + stepX / 2;
+          const x = centerX - barW / 2;
+          const y = yScale(count);
+          const h = Math.max(0, yScale(0) - y);
+
+          const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          rect.setAttribute('x', String(x));
+          rect.setAttribute('y', String(y));
+          rect.setAttribute('width', String(barW));
+          rect.setAttribute('height', String(h));
+          rect.setAttribute('rx', '5');
+          rect.setAttribute(
+            'fill',
+            balanced
+              ? 'var(--book-balanced-fill)'
+              : count > TARGET_MEAN
+              ? 'var(--book-excess-fill)'
+              : 'var(--book-fill-base)'
+          );
+          svgBarsLayer.appendChild(rect);
+
+          // Etiqueta de valor encima de cada barra
+          const valText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          valText.setAttribute('x', String(centerX));
+          valText.setAttribute('y', String(y - 6));
+          valText.setAttribute('text-anchor', 'middle');
+          valText.setAttribute('fill', 'var(--text-primary)');
+          valText.setAttribute('font-family', 'var(--font-mono)');
+          valText.setAttribute('font-weight', '800');
+          valText.setAttribute('font-size', '12');
+          valText.textContent = String(count);
+          svgBarsLayer.appendChild(valText);
+
+          // Etiqueta del eje X
+          const xLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          xLabel.setAttribute('x', String(centerX));
+          xLabel.setAttribute('y', String(height - 10));
+          xLabel.setAttribute('text-anchor', 'middle');
+          xLabel.setAttribute('fill', 'var(--text-secondary)');
+          xLabel.setAttribute('font-size', '11');
+          xLabel.setAttribute('font-weight', '700');
+          xLabel.textContent = 'Pila ' + (idx + 1);
+          svgBarsLayer.appendChild(xLabel);
+        });
+
+        // 3. Línea horizontal de la Media (y = 5)
+        svgMeanLayer.innerHTML = '';
+        const yMean = yScale(TARGET_MEAN);
+        const meanLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        meanLine.setAttribute('x1', String(margin.left));
+        meanLine.setAttribute('x2', String(width - margin.right));
+        meanLine.setAttribute('y1', String(yMean));
+        meanLine.setAttribute('y2', String(yMean));
+        meanLine.setAttribute('stroke', 'var(--target-line)');
+        meanLine.setAttribute('stroke-width', '2.5');
+        meanLine.setAttribute('stroke-dasharray', '6 4');
+        svgMeanLayer.appendChild(meanLine);
+
+        const meanTag = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        meanTag.setAttribute('x', String(width - margin.right));
+        meanTag.setAttribute('y', String(yMean - 5));
+        meanTag.setAttribute('text-anchor', 'end');
+        meanTag.setAttribute('fill', 'var(--target-badge-text)');
+        meanTag.setAttribute('font-family', 'var(--font-mono)');
+        meanTag.setAttribute('font-size', '10.5');
+        meanTag.setAttribute('font-weight', '800');
+        meanTag.textContent = 'x̄ = 5';
+        svgMeanLayer.appendChild(meanTag);
+      }
+
+      /**
+       * Actualiza los 3 contenedores (divs) de pilas de libros, los controles accesibles,
+       * el estado de celebración y la visualización lateral.
+       * @param {string} [announcement] Mensaje opcional para lectores de pantalla.
+       * @param {number|null} [focusStackIdx] Índice de pila donde restaurar el foco de teclado tras actualizar.
+       */
+      function renderAll(announcement, focusStackIdx) {
+        const booksInHand = state.handOrigins.length;
+        const balanced = isEquilibriumReached();
+        const waitingDestination = state.selectedSourceStack !== null || booksInHand > 0;
+
+        // Actualizar cada uno de los 3 contenedores (divs) y sus bloques de libros apilados
+        state.counts.forEach(function (count, stackIdx) {
+          const container = stackContainers[stackIdx];
+          const column = stackColumns[stackIdx];
+          const countBadge = stackCountBadges[stackIdx];
+          const diffTag = stackDiffTags[stackIdx];
+
+          // Altura visual del contenedor (div) proporcional a la cantidad de libros
+          container.style.setProperty('--book-count', String(count));
+          container.setAttribute(
+            'aria-label',
+            'Contenedor de Pila ' + (stackIdx + 1) + ' con ' + count + (count === 1 ? ' libro' : ' libros')
+          );
+
+          // Etiquetas numéricas y de diferencia respecto de la media (5)
+          countBadge.textContent = count + (count === 1 ? ' libro' : ' libros');
+          const diff = count - TARGET_MEAN;
+          if (diff === 0) {
+            diffTag.textContent = 'En la media (5)';
+          } else if (diff > 0) {
+            diffTag.textContent = 'Sobran ' + diff + ' sobre 5';
+          } else {
+            diffTag.textContent = 'Faltan ' + Math.abs(diff) + ' para 5';
+          }
+
+          // Clases visuales de estado de la columna
+          column.classList.toggle('is-balanced', balanced);
+          column.classList.toggle('is-celebrating', balanced);
+          column.classList.toggle(
+            'is-drop-target',
+            waitingDestination && state.selectedSourceStack !== stackIdx
+          );
+
+          // Reconstruir los bloques de libros apilados dentro del contenedor (div)
+          container.innerHTML = '';
+          for (let b = 0; b < count; b++) {
+            const bookNumber = b + 1;
+            const isTopBook = b === count - 1;
+            const isSelectedBook = state.selectedSourceStack === stackIdx && isTopBook;
+
+            const bookDiv = document.createElement('div');
+            bookDiv.className = 'book-block';
+            if (bookNumber > TARGET_MEAN) {
+              bookDiv.classList.add('is-above-mean');
+            }
+            if (isSelectedBook) {
+              bookDiv.classList.add('is-selected');
+            }
+
+            // Atributos de accesibilidad para que cada libro sea operable con clic o teclado
+            bookDiv.setAttribute('role', 'button');
+            bookDiv.setAttribute('tabindex', isTopBook ? '0' : '-1');
+            bookDiv.setAttribute('aria-pressed', isSelectedBook ? 'true' : 'false');
+            bookDiv.setAttribute(
+              'aria-label',
+              'Libro ' + bookNumber + ' de ' + count + ' en Pila ' + (stackIdx + 1) +
+              (isSelectedBook ? ' (seleccionado para mover)' : '. Hacé clic o presioná Enter para mover o depositar aquí.')
+            );
+
+            const titleSpan = document.createElement('span');
+            titleSpan.className = 'book-block-label';
+            titleSpan.textContent = 'Libro ' + bookNumber;
+            const iconSpan = document.createElement('span');
+            iconSpan.className = 'book-block-icon';
+            iconSpan.setAttribute('aria-hidden', 'true');
+            iconSpan.textContent = isSelectedBook ? '⇄' : '▤';
+
+            bookDiv.appendChild(titleSpan);
+            bookDiv.appendChild(iconSpan);
+
+            // Al hacer clic o presionar Enter/Espacio en un libro se preserva el foco en esa pila
+            bookDiv.addEventListener('click', function (ev) {
+              ev.stopPropagation();
+              handleStackOrBookClick(stackIdx, true);
+            });
+            bookDiv.addEventListener('keydown', function (ev) {
+              if (ev.key === 'Enter' || ev.key === ' ') {
+                ev.preventDefault();
+                ev.stopPropagation();
+                handleStackOrBookClick(stackIdx, true);
+              }
+            });
+
+            container.appendChild(bookDiv);
+          }
+
+          // Actualizar estado y aria-label de los botones '-' y '+'
+          minusButtons[stackIdx].disabled = count <= 0;
+          minusButtons[stackIdx].setAttribute(
+            'aria-label',
+            'Quitar un libro de la Pila ' + (stackIdx + 1) + ' (actualmente tiene ' + count + ' libros)'
+          );
+
+          plusButtons[stackIdx].disabled = !canPlaceBook(stackIdx);
+          plusButtons[stackIdx].setAttribute(
+            'aria-label',
+            'Agregar un libro a la Pila ' + (stackIdx + 1) + ' (actualmente tiene ' + count + ' libros)'
+          );
+        });
+
+        // Actualizar la barra de estado / libro en mano
+        const activeHandCount = booksInHand + (state.selectedSourceStack !== null ? 1 : 0);
+        interactionBar.classList.toggle('has-book-in-hand', activeHandCount > 0);
+        handIndicator.textContent = 'En mano: ' + activeHandCount + (activeHandCount === 1 ? ' libro' : ' libros');
+        btnCancelHand.hidden = activeHandCount === 0;
+
+        if (balanced) {
+          instructionLive.textContent = '¡Las 3 pilas quedaron niveladas con 5 libros cada una!';
+        } else if (state.selectedSourceStack !== null) {
+          instructionLive.textContent =
+            'Seleccionaste 1 libro de la Pila ' + (state.selectedSourceStack + 1) +
+            '. Ahora hacé clic en una pila más baja (como la Pila 1) para apoyarlo allí.';
+        } else if (booksInHand > 0) {
+          instructionLive.textContent =
+            'Tenés ' + booksInHand + (booksInHand === 1 ? ' libro en mano' : ' libros en mano') +
+            '. Hacé clic en una pila más baja o presioná su botón + para ubicarlo.';
+        } else {
+          instructionLive.textContent =
+            'Hacé clic en un libro de una pila alta (o usá − y +) para pasar libros hasta que las 3 pilas tengan 5 libros.';
+        }
+
+        // Actualizar el resumen matemático en vivo
+        liveStacksTuple.textContent = state.counts[0] + ', ' + state.counts[1] + ' y ' + state.counts[2] + ' libros' +
+          (booksInHand > 0 ? ' (+ ' + booksInHand + ' en mano)' : '');
+        const sumStacks = state.counts[0] + state.counts[1] + state.counts[2] + booksInHand;
+        liveMeanCalc.textContent =
+          '(' + state.counts.join(' + ') + (booksInHand > 0 ? ' + ' + booksInHand : '') +
+          ') ÷ 3 = ' + sumStacks + ' ÷ 3 = 5 libros';
+
+        const devs = state.counts.map(function (c) {
+          const d = c - TARGET_MEAN;
+          return d > 0 ? '+' + d : String(d).replace('-', '−');
+        });
+        liveDeviations.textContent = devs[0] + ', ' + devs[1] + ' y ' + devs[2] +
+          (balanced ? ' (todas en 0: equilibrio perfecto)' : '');
+
+        // Activar o esconder el mensaje de celebración cuando las 3 pilas tienen 5 libros
+        celebrationBanner.classList.toggle('is-visible', balanced);
+
+        // Actualizar gráfico lateral
+        renderD3BalanceChart();
+
+        // Restaurar foco de teclado si la actualización provino de un libro o cancelación
+        if (focusStackIdx !== null && focusStackIdx !== undefined) {
+          restoreKeyboardFocus(focusStackIdx);
+        }
+
+        // Anunciar a lectores de pantalla
+        if (balanced) {
+          announceToScreenReader('¡Reparto equitativo logrado! Esto es la Media: (2+5+8) ÷ 3 = 5');
+        } else if (announcement) {
+          announceToScreenReader(announcement);
+        }
+      }
+
+      // Eventos en los pozos de cada pila para recibir el libro con clic
+      stackWells.forEach(function (well, idx) {
+        well.addEventListener('click', function () {
+          handleStackOrBookClick(idx, true);
+        });
+      });
+
+      // Eventos en los botones accesibles '-' y '+'
+      minusButtons.forEach(function (btn, idx) {
+        btn.addEventListener('click', function () {
+          handleStepButton('minus', idx);
+        });
+      });
+
+      plusButtons.forEach(function (btn, idx) {
+        btn.addEventListener('click', function () {
+          handleStepButton('plus', idx);
+        });
+      });
+
+      // Cancelar selección con botón o con tecla Escape
+      btnCancelHand.addEventListener('click', cancelSelectionOrHand);
+      document.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Escape' && (state.selectedSourceStack !== null || state.handOrigins.length > 0)) {
+          cancelSelectionOrHand();
+        }
+      });
+
+      // Botones de reinicio
+      btnReset.addEventListener('click', resetStacks);
+      btnReplay.addEventListener('click', resetStacks);
+
+      // Conmutador de modo claro / oscuro
+      function syncThemeButton() {
+        const isDark = state.theme === 'oscuro';
+        btnThemeToggle.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+        btnThemeToggle.textContent = isDark ? '☀ Modo claro' : '☾ Modo oscuro';
+      }
+      syncThemeButton();
+
+      btnThemeToggle.addEventListener('click', function () {
+        state.theme = state.theme === 'claro' ? 'oscuro' : 'claro';
+        document.documentElement.setAttribute('data-theme', state.theme);
+        syncThemeButton();
+      });
+
+      // Renderizado inicial con alturas 2, 5 y 8 libros
+      renderAll();
+    })();
+  </script>
+</body>
+</html>

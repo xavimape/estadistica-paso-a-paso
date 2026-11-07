@@ -6,12 +6,13 @@
 'use strict';
 
 const CACHE_PREFIX = 'estadistica-paso-a-paso-' + encodeURIComponent(self.registration.scope) + '-';
-const CORE_CACHE = `${CACHE_PREFIX}core-v2`;
-const MEDIA_CACHE = `${CACHE_PREFIX}media-v2`;
+const CORE_CACHE = `${CACHE_PREFIX}core-v4`;
+const MEDIA_CACHE = `${CACHE_PREFIX}media-v3`;
 
 const CORE_ASSETS = [
   './',
   './index.html',
+  './actividades/reparto-media.html',
   './manifest.webmanifest',
   './assets/css/styles.css',
   './assets/js/math-engine.js',
