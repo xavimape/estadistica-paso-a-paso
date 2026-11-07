@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Misión 1: Elige a tu Jugador | Estadística Paso a Paso</title>
+    <style>
+        /* --- VARIABLES Y RESET (Diseño Limpio y Accesible) --- */
+        :root {
+            --color-bg: #F8F9FA;
+            --color-text: #212529;
+            --color-nominal: #3B82F6; /* Azul */
+            --color-ordinal: #8B5CF6; /* Violeta */
+            --color-discreta: #10B981; /* Verde */
+            --color-continua: #F59E0B; /* Naranja */
+            --color-success: #22C55E;
+            --color-error: #EF4444;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Modo oscuro automático si el sistema lo tiene activado */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --color-bg: #111827;
+                --color-text: #F3F4F6;
+                --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+            }
+        }
+
+        /* Respetar preferencia de movimiento reducido */
+        @media (prefers-reduced-motion: reduce) {
+            * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* --- HEADER Y PROGRESO --- */
+        header { text-align: center; margin-bottom: 2rem; }
+        .badge { 
+            display: inline-block; background: var(--color-text); color: var(--color-bg); 
+            padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; margin-bottom: 1rem; 
+        }
+        h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+        .subtitle { font-size: 1.1rem; opacity: 0.8; max-width: 600px; margin: 0 auto; }
+
+        .progress-bar {
+            width: 100%; height: 8px; background: rgba(128,128,128,0.2); 
+            border-radius: 4px; margin-top: 1.5rem; overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%; background: var(--color-success); width: 0%; 
+            transition: width 0.5s ease;
+        }
+
+        /* --- ZONA DE JUEGO --- */
+        .game-area {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        @media (min-width: 768px) {
+            .game-area { grid-template-columns: 1fr 1fr; }
+        }
+
+        /* --- TARJETAS ARRASTRABLES --- */
+        .cards-pool {
+            display: flex; flex-direction: column; gap: 1rem;
+        }
+        .draggable-card {
+            background: white; color: #1f2937; /* Siempre texto oscuro en tarjeta para contraste */
+            padding: 1rem; border-radius: var(--radius);
+            box-shadow: var(--shadow); cursor: grab;
+            border-left: 5px solid #6B7280;
+            transition: var(--transition);
+            font-weight: 500;
+            position: relative;
+        }
+        .draggable-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .draggable-card:active { cursor: grabbing; }
+        .draggable-card.dragging { opacity: 0.5; }
+        .draggable-card.correct { border-left-color: var(--color-success); background: #F0FDF4; }
+        .draggable-card.shake { animation: shake 0.5s; border-left-color: var(--color-error); }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* --- ZONAS DE DESTINO (DROP ZONES) --- */
+        .drop-zones {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+        }
+        .drop-zone {
+            background: rgba(128,128,128,0.05);
+            border: 2px dashed rgba(128,128,128,0.3);
+            border-radius: var(--radius);
+            padding: 1rem;
+            min-height: 150px;
+            transition: var(--transition);
+            display: flex; flex-direction: column; gap: 0.5rem;
+        }
+        .drop-zone h3 { font-size: 1rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        .drop-zone.drag-over { background: rgba(128,128,128,0.1); border-style: solid; transform: scale(1.02); }
+        
+        /* Colores específicos por zona */
+        .zone-nominal { border-color: var(--color-nominal); color: var(--color-nominal); }
+        .zone-nominal h3::before { content: '🏷️'; }
+        
+        .zone-ordinal { border-color: var(--color-ordinal); color: var(--color-ordinal); }
+        .zone-ordinal h3::before { content: '📊'; }
+        
+        .zone-discreta { border-color: var(--color-discreta); color: var(--color-discreta); }
+        .zone-discreta h3::before { content: '🔢'; }
+        
+        .zone-continua { border-color: var(--color-continua); color: var(--color-continua); }
+        .zone-continua h3::before { content: '📏'; }
+
+        .drop-zone .draggable-card { margin: 0; font-size: 0.9rem; padding: 0.75rem; }
+
+        /* --- MENSAJES DE FEEDBACK --- */
+        .feedback-msg {
+            text-align: center; min-height: 2rem; font-weight: bold; margin-top: 1rem;
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .feedback-msg.visible { opacity: 1; }
+        .feedback-msg.error { color: var(--color-error); }
+        .feedback-msg.success { color: var(--color-success); }
+
+        /* --- MODAL DE ÉXITO (REFLEXIÓN) --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 1000;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+        .modal-content {
+            background: var(--color-bg); color: var(--color-text);
+            padding: 2rem; border-radius: var(--radius); max-width: 600px; width: 90%;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+            transform: translateY(20px); transition: transform 0.3s;
+        }
+        .modal-overlay.active .modal-content { transform: translateY(0); }
+        .modal-content h2 { color: var(--color-success); margin-bottom: 1rem; }
+        .theory-box {
+            background: rgba(128,128,128,0.1); padding: 1rem; border-radius: 8px; 
+            margin: 1rem 0; font-size: 0.95rem; border-left: 4px solid var(--color-text);
+        }
+        .btn {
+            background: var(--color-text); color: var(--color-bg); border: none;
+            padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: bold; cursor: pointer;
+            font-size: 1rem; transition: var(--transition); width: 100%; margin-top: 1rem;
+        }
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn:focus-visible { outline: 3px solid var(--color-success); outline-offset: 2px; }
+
+        /* --- ACCESIBILIDAD: FOCO VISIBLE --- */
+        *:focus-visible { outline: 3px solid var(--color-text); outline-offset: 2px; }
+        
+        /* Instrucción de teclado */
+        .keyboard-hint {
+            font-size: 0.8rem; opacity: 0.7; text-align: center; margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <span class="badge">Misión 1 de 4</span>
+        <h1>🎯 Elige a tu Jugador</h1>
+        <p class="subtitle">Antes de calcular, hay que saber con qué jugamos. Arrastra cada situación a su caja correcta. ¡Cero estrés, 100% confianza!</p>
+        <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+    </header>
+
+    <main class="game-area">
+        <!-- Pozo de tarjetas -->
+        <section class="cards-pool" id="cardsPool" aria-label="Situaciones para clasificar">
+            <!-- Se generan con JS -->
+        </section>
+
+        <!-- Zonas de destino -->
+        <section class="drop-zones" aria-label="Categorías de variables">
+            <div class="drop-zone zone-nominal" data-type="nominal" tabindex="0" role="region" aria-label="Zona Cualitativa Nominal">
+                <h3>Cualitativa Nominal</h3>
+                <p style="font-size: 0.8rem; opacity: 0.7;">(Sin orden jerárquico)</p>
+            </div>
+            <div class="drop-zone zone-ordinal" data-type="ordinal" tabindex="0" role="region" aria-label="Zona Cualitativa Ordinal">
+                <h3>Cualitativa Ordinal</h3>
+                <p style="font-size: 0.8rem; opacity: 0.7;">(Con orden lógico)</p>
+            </div>
+            <div class="drop-zone zone-discreta" data-type="discreta" tabindex="0" role="region" aria-label="Zona Cuantitativa Discreta">
+                <h3>Cuantitativa Discreta</h3>
+                <p style="font-size: 0.8rem; opacity: 0.7;">(Conteo exacto, enteros)</p>
+            </div>
+            <div class="drop-zone zone-continua" data-type="continua" tabindex="0" role="region" aria-label="Zona Cuantitativa Continua">
+                <h3>Cuantitativa Continua</h3>
+                <p style="font-size: 0.8rem; opacity: 0.7;">(Medición, admite decimales)</p>
+            </div>
+        </section>
+    </main>
+
+    <div class="feedback-msg" id="feedbackMsg" role="status" aria-live="polite"></div>
+    <p class="keyboard-hint">💡 Tip: Usa <kbd>Tab</kbd> para moverte, <kbd>Enter</kbd> o <kbd>Espacio</kbd> para seleccionar, y <kbd>Enter</kbd> en la zona para soltar.</p>
+
+    <!-- MODAL DE ÉXITO -->
+    <div class="modal-overlay" id="successModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-content">
+            <h2 id="modalTitle">🎉 ¡Misión Cumplida!</h2>
+            <p>Has clasificado todas las variables correctamente. Ahora que lo <strong>hiciste</strong>, veamos por qué funciona así.</p>
+            
+            <details class="theory-box">
+                <summary style="cursor: pointer; font-weight: bold; margin-bottom: 0.5rem;">📖 Quiero entender más: La teoría formal</summary>
+                <ul style="margin-left: 1.2rem; margin-top: 0.5rem;">
+                    <li><strong>Nominal:</strong> Solo nombra. Un número de camiseta es una etiqueta, no una cantidad.</li>
+                    <li><strong>Ordinal:</strong> Tiene un orden lógico (Bajo < Medio < Alto), pero la distancia entre ellos no es matemática.</li>
+                    <li><strong>Discreta:</strong> Surge de contar. No puedes tener 2,5 hermanos.</li>
+                    <li><strong>Continua:</strong> Surge de medir con instrumentos. Siempre puede haber un decimal más preciso (ej: 1,605 m).</li>
+                </ul>
+                <p style="margin-top: 0.5rem; font-style: italic; color: var(--color-error);">⚠️ <strong>¡OJO!</strong> Ver un número no alcanza para clasificar. El talle de remera (S, M, L) o el número de calzado son etiquetas ordenadas, ¡no cantidades para sumar!</p>
+            </details>
+
+            <button class="btn" onclick="alert('Aquí iría el enlace a la Misión 2: Tablas de Frecuencia')">🚀 Ir a la Misión 2: Organizando el Caos</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATOS DEL PDF (Ejemplos reales) ---
+        const cardsData = [
+            { id: 'c1', text: 'Deporte preferido (Fútbol, Vóley)', type: 'nominal', hint: 'Son nombres, ninguno es "mayor" que otro.' },
+            { id: 'c2', text: 'Nivel de satisfacción (Bajo, Medio, Alto)', type: 'ordinal', hint: 'Hay un orden claro de calidad.' },
+            { id: 'c3', text: 'Cantidad de hermanos (0, 1, 2)', type: 'discreta', hint: 'Se cuenta en números enteros, no hay 1,5 hermanos.' },
+            { id: 'c4', text: 'Estatura de un estudiante (1,60 m)', type: 'continua', hint: 'Se mide con un instrumento y admite decimales.' },
+            { id: 'c5', text: 'Barrio de residencia en Formosa', type: 'nominal', hint: 'Es una categoría, no un número.' },
+            { id: 'c6', text: 'Talle de remera del uniforme (S, M, L)', type: 'ordinal', hint: '¡Cuidado! Parece número, pero es una etiqueta con orden.' }
+        ];
+
+        let correctCount = 0;
+        const totalCards = cardsData.length;
+        let selectedCard = null; // Para accesibilidad por teclado
+
+        // --- INICIALIZACIÓN ---
+        const cardsPool = document.getElementById('cardsPool');
+        const feedbackMsg = document.getElementById('feedbackMsg');
+        const progressFill = document.getElementById('progressFill');
+
+        function initGame() {
+            // Mezclar tarjetas aleatoriamente
+            const shuffled = [...cardsData].sort(() => Math.random() - 0.5);
+            
+            shuffled.forEach(data => {
+                const card = document.createElement('div');
+                card.className = 'draggable-card';
+                card.draggable = true;
+                card.id = data.id;
+                card.dataset.type = data.type;
+                card.dataset.hint = data.hint;
+                card.textContent = data.text;
+                card.setAttribute('role', 'button');
+                card.setAttribute('tabindex', '0');
+                card.setAttribute('aria-grabbed', 'false');
+                
+                // Eventos Drag & Drop (Mouse)
+                card.addEventListener('dragstart', handleDragStart);
+                card.addEventListener('dragend', handleDragEnd);
+                
+                // Eventos Teclado (Accesibilidad)
+                card.addEventListener('keydown', handleCardKeydown);
+                
+                cardsPool.appendChild(card);
+            });
+        }
+
+        // --- LÓGICA DRAG & DROP ---
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.id);
+            e.target.classList.add('dragging');
+            showFeedback('', ''); // Limpiar feedback
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        // Configurar zonas de destino
+        document.querySelectorAll('.drop-zone').forEach(zone => {
+            zone.addEventListener('dragover', e => {
+                e.preventDefault(); // Necesario para permitir el drop
+                zone.classList.add('drag-over');
+            });
+
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('drag-over');
+            });
+
+            zone.addEventListener('drop', e => {
+                e.preventDefault();
+                zone.classList.remove('drag-over');
+                const cardId = e.dataTransfer.getData('text/plain');
+                const card = document.getElementById(cardId);
+                validateMove(card, zone);
+            });
+
+            // Soporte de teclado para drop
+            zone.addEventListener('keydown', e => {
+                if ((e.key === 'Enter' || e.key === ' ') && selectedCard) {
+                    e.preventDefault();
+                    validateMove(selectedCard, zone);
+                }
+            });
+        });
+
+        // --- VALIDACIÓN Y FEEDBACK ---
+        function validateMove(card, zone) {
+            const cardType = card.dataset.type;
+            const zoneType = zone.dataset.type;
+
+            if (cardType === zoneType) {
+                // ¡Correcto!
+                zone.appendChild(card);
+                card.draggable = false;
+                card.classList.add('correct');
+                card.setAttribute('aria-grabbed', 'false');
+                card.style.cursor = 'default';
+                selectedCard = null;
+                
+                correctCount++;
+                updateProgress();
+                showFeedback('✅ ¡Correcto! Bien ubicado.', 'success');
+
+                if (correctCount === totalCards) {
+                    setTimeout(() => {
+                        document.getElementById('successModal').classList.add('active');
+                        // Mover el foco al modal para accesibilidad
+                        document.querySelector('.modal-content').focus();
+                    }, 600);
+                }
+            } else {
+                // Incorrecto
+                card.classList.add('shake');
+                showFeedback(`❌ No exactamente. Pista: ${card.dataset.hint}`, 'error');
+                setTimeout(() => card.classList.remove('shake'), 500);
+            }
+        }
+
+        // --- ACCESIBILIDAD POR TECLADO ---
+        function handleCardKeydown(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                if (selectedCard === e.target) {
+                    // Deseleccionar
+                    e.target.setAttribute('aria-grabbed', 'false');
+                    e.target.style.outline = '';
+                    selectedCard = null;
+                    showFeedback('Tarjeta deseleccionada.', '');
+                } else {
+                    // Seleccionar
+                    if (selectedCard) {
+                        selectedCard.setAttribute('aria-grabbed', 'false');
+                        selectedCard.style.outline = '';
+                    }
+                    selectedCard = e.target;
+                    e.target.setAttribute('aria-grabbed', 'true');
+                    e.target.style.outline = '3px solid var(--color-text)';
+                    showFeedback(`Seleccionado: ${e.target.textContent}. Usa Tab para ir a una zona y Enter para soltar.`, '');
+                }
+            }
+        }
+
+        // --- UTILIDADES ---
+        function updateProgress() {
+            const percentage = (correctCount / totalCards) * 100;
+            progressFill.style.width = `${percentage}%`;
+            progressFill.parentElement.setAttribute('aria-valuenow', percentage);
+        }
+
+        function showFeedback(msg, type) {
+            feedbackMsg.textContent = msg;
+            feedbackMsg.className = 'feedback-msg visible ' + type;
+            
+            // Limpiar mensaje después de 3 segundos si es error
+            if (type === 'error') {
+                setTimeout(() => {
+                    feedbackMsg.classList.remove('visible');
+                }, 4000);
+            }
+        }
+
+        // Iniciar
+        initGame();
+    </script>
+</body>
+</html>

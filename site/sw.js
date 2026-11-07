@@ -6,7 +6,7 @@
 'use strict';
 
 const CACHE_PREFIX = 'estadistica-paso-a-paso-' + encodeURIComponent(self.registration.scope) + '-';
-const CORE_CACHE = `${CACHE_PREFIX}core-v4`;
+const CORE_CACHE = `${CACHE_PREFIX}core-v7`;
 const MEDIA_CACHE = `${CACHE_PREFIX}media-v3`;
 
 const CORE_ASSETS = [
@@ -15,12 +15,16 @@ const CORE_ASSETS = [
   './actividades/reparto-media.html',
   './manifest.webmanifest',
   './assets/css/styles.css',
+  './assets/css/study.css',
+  './assets/video/repaso-estadistica.jpg',
   './assets/js/math-engine.js',
   './assets/js/lessons-data.js',
   './assets/js/exercises-data.js',
   './assets/js/storage.js',
   './assets/js/charts.js',
   './assets/js/ui-views.js',
+  './assets/js/missions.js',
+  './assets/js/study-views.js',
   './assets/js/app.js',
   './assets/icons/icon.svg',
   './assets/icons/icon-192.png',
@@ -95,6 +99,8 @@ self.addEventListener('fetch', (event) => {
   const reqUrl = new URL(req.url);
   // Only handle requests within our registration scope
   if (!reqUrl.href.startsWith(self.registration.scope)) return;
+  // Let the browser request and seek through the MP4 directly.
+  if (reqUrl.pathname.endsWith('.mp4')) return;
 
   event.respondWith(
     (async () => {

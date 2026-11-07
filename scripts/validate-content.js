@@ -141,12 +141,15 @@ function runValidation() {
     'index.html',
     'manifest.webmanifest',
     'assets/css/styles.css',
+    'assets/css/study.css',
     'assets/js/math-engine.js',
     'assets/js/lessons-data.js',
     'assets/js/exercises-data.js',
     'assets/js/storage.js',
     'assets/js/charts.js',
     'assets/js/ui-views.js',
+    'assets/js/missions.js',
+    'assets/js/study-views.js',
     'assets/js/app.js',
     'assets/icons/icon.svg'
   ];

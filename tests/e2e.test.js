@@ -8,7 +8,7 @@ const { spawn, execFileSync } = require('node:child_process');
 const { createStaticServer } = require('../scripts/serve.js');
 
 const ROOT_DIR = path.join(__dirname, '..');
-const CAPTURAS_DIR = path.join(ROOT_DIR, 'docs', 'capturas');
+const CAPTURAS_DIR = process.env.ESTADISTICA_CAPTURAS || path.join(ROOT_DIR, 'docs', 'capturas');
 
 const CHROME_PATHS = [
   'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
@@ -187,7 +187,10 @@ async function runE2E() {
         '/manifest.webmanifest',
         '/sw.js',
         '/assets/css/styles.css',
+        '/assets/css/study.css',
         '/assets/js/app.js',
+        '/assets/js/missions.js',
+        '/assets/js/study-views.js',
         '/assets/fichas/ficha-01-variables.png',
         '/assets/fichas/thumbs/ficha-01-variables.png',
         '/assets/documentos/guia-estudio-estadistica-2do-anio.pdf',
@@ -213,8 +216,56 @@ async function runE2E() {
       await cdp.navigate(`${rootUrl}/#/inicio`, 500);
       await cdp.evaluate(`window.EstadisticaApp.Storage.updateAppearance({ theme: 'claro', fontSize: 100, focusMode: false })`);
       const homeTitle = await cdp.evaluate(`document.querySelector('#home-heading')?.textContent || ''`);
-      assert.ok(homeTitle.includes('Bienvenida'), 'No se renderizó la vista Inicio');
+      assert.equal(homeTitle, 'De los datos a las ideas', 'No se renderizó la portada');
+      const studyRoutes = await cdp.evaluate(`Array.from(document.querySelectorAll('.study-choices a'), (link) => link.hash)`);
+      assert.deepEqual(studyRoutes, ['#/inicio/repaso', '#/inicio/guia', '#/inicio/video']);
+      assert.deepEqual(await cdp.evaluate(`Array.from(document.querySelectorAll('.mission-links a'), (link) => link.hash)`),
+        ['#/inicio/mision-1', '#/inicio/mision-2', '#/inicio/mision-3', '#/inicio/mision-4']);
       await cdp.screenshotPng(path.join(CAPTURAS_DIR, '01-inicio-escritorio-claro.png'));
+
+      await cdp.navigate(`${subpathUrl}/#/inicio/repaso`, 500);
+      const detective = await cdp.evaluate(`(() => {
+        const form = document.querySelector('#detective-form');
+        const details = document.querySelector('.study-detective details');
+        const check = (value) => {
+          form.elements.media.value = value;
+          form.requestSubmit();
+          return document.querySelector('#detective-feedback').textContent;
+        };
+        return { open: details.open, wrong: check('7,8'), right: check('7,5') };
+      })()`);
+      assert.equal(detective.open, false);
+      assert.match(detective.wrong, /Revisá la suma/);
+      assert.match(detective.right, /La media es 7,5/);
+      await cdp.navigate(`${subpathUrl}/#/inicio/guia`, 500);
+      assert.equal(await cdp.evaluate(`document.querySelector('#guide-heading')?.textContent`), 'Guía y práctica completa');
+      await cdp.navigate(`${subpathUrl}/#/inicio/video`, 500);
+      assert.equal(await cdp.evaluate(`document.querySelector('#study-video-file')?.type`), 'file');
+      assert.equal(await cdp.evaluate(`document.querySelector('#study-player')?.getAttribute('src')`), 'assets/video/repaso-estadistica.mp4');
+      assert.equal(await cdp.evaluate(`document.querySelector('#study-player')?.preload`), 'none');
+
+      await cdp.navigate(`${subpathUrl}/#/inicio/mision-2`, 500);
+      const frequencyRetry = await cdp.evaluate(`(() => {
+        document.querySelectorAll('[data-book]').forEach((chip) => chip.click());
+        const form = document.querySelector('#frequency-step form');
+        const inputs = Array.from(form.querySelectorAll('input'));
+        const submit = (values) => {
+          inputs.forEach((input, i) => { input.value = values[i]; });
+          form.requestSubmit();
+        };
+        submit(['2,9', '4', '8', '9', '10']);
+        const errors = inputs.filter((input) => input.getAttribute('aria-invalid') === 'true').length;
+        const editable = inputs.every((input) => !input.disabled);
+        submit(['2', '6', '8', '9', '10']);
+        return { errors, editable, next: document.querySelector('#frequency-step h4').textContent };
+      })()`);
+      assert.deepEqual(frequencyRetry, { errors: 2, editable: true, next: 'Paso 3 · Frecuencia relativa' });
+      await cdp.navigate(`${subpathUrl}/#/inicio/mision-4`, 500);
+      const wages = await cdp.evaluate(`(() => {
+        document.querySelector('#mission-wage-toggle').click();
+        return document.querySelector('#mission-wage-result').textContent;
+      })()`);
+      assert.ok(wages.startsWith('Media $800.000. Mediana $300.000.'), 'Los sueldos deben conservar los ceros');
 
       // 2b. Test all required viewports (320, 360, 390, 768, 1024, 1440) for absence of horizontal overflow
       const viewports = [
@@ -334,6 +385,10 @@ async function runE2E() {
       await cdp.navigate(`${subpathUrl}/#/aprende/L08`, 400);
       const offlineLessonTitle = await cdp.evaluate(`document.querySelector('#lesson-heading')?.textContent || ''`);
       assert.ok(offlineLessonTitle.includes('L08'), 'La navegación offline mediante Service Worker debe funcionar sin red');
+      await cdp.navigate(`${subpathUrl}/index.html#/inicio/repaso`, 400);
+      assert.equal(await cdp.evaluate(`document.querySelector('#repaso-heading')?.textContent`), 'Repaso interactivo');
+      await cdp.navigate(`${subpathUrl}/index.html#/inicio/mision-3`, 400);
+      assert.equal(await cdp.evaluate(`document.querySelector('#mission-chart svg')?.getAttribute('role')`), 'img');
       await cdp.send('Network.emulateNetworkConditions', {
         offline: false,
         latency: 0,

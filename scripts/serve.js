@@ -16,6 +16,7 @@ const MIME_TYPES = {
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
+  '.mp4': 'video/mp4',
   '.pdf': 'application/pdf',
   '.zip': 'application/zip',
   '.ico': 'image/x-icon'
@@ -61,11 +62,39 @@ function createStaticServer() {
 
       const ext = path.extname(fullPath).toLowerCase();
       const mime = MIME_TYPES[ext] || 'application/octet-stream';
-      const stream = fs.createReadStream(fullPath);
-      res.writeHead(200, {
+      const headers = {
         'Content-Type': mime,
         'Cache-Control': 'no-cache'
-      });
+      };
+      let status = 200;
+      let streamOptions;
+      if (ext === '.mp4') {
+        const size = fs.statSync(fullPath).size;
+        headers['Accept-Ranges'] = 'bytes';
+        headers['Content-Length'] = size;
+        const range = req.method === 'GET' && req.headers.range;
+        if (range) {
+          const match = /^bytes=(\d*)-(\d*)$/.exec(range);
+          const start = match?.[1] ? Number(match[1]) : Math.max(0, size - Number(match?.[2]));
+          const end = match?.[1] && match[2] ? Math.min(Number(match[2]), size - 1) : size - 1;
+          if (!match || (!match[1] && !match[2]) || !Number.isSafeInteger(start) || start > end) {
+            res.writeHead(416, { ...headers, 'Content-Range': `bytes */${size}`, 'Content-Length': 0 });
+            res.end();
+            return;
+          }
+          status = 206;
+          headers['Content-Range'] = `bytes ${start}-${end}/${size}`;
+          headers['Content-Length'] = end - start + 1;
+          streamOptions = { start, end };
+        }
+      }
+      res.writeHead(status, headers);
+      if (req.method === 'HEAD') {
+        res.end();
+        return;
+      }
+      const stream = fs.createReadStream(fullPath, streamOptions);
+      res.on('close', () => stream.destroy());
       stream.pipe(res);
     } catch (err) {
       res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });

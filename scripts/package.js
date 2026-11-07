@@ -34,6 +34,8 @@ with zipfile.ZipFile(portable_in_site, "w", zipfile.ZIP_DEFLATED) as zf:
                 continue
             if os.path.abspath(full) == os.path.abspath(portable_in_site):
                 continue
+            if os.path.relpath(full, site_dir) == os.path.join('assets', 'video', 'repaso-estadistica.mp4'):
+                continue
             rel = os.path.relpath(full, site_dir).replace("\\\\", "/")
             zf.write(full, rel)
 

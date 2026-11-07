@@ -8,6 +8,7 @@
   const Storage = EstadisticaApp.Storage;
   const Charts = EstadisticaApp.Charts;
   const UIViews = EstadisticaApp.UIViews;
+  const StudyViews = EstadisticaApp.StudyViews;
   const esc = Charts.escapeHtml;
 
   function normalizeText(str) {
@@ -33,6 +34,7 @@
   // ===================== APP STATE =====================
   const state = {
     tab: 'inicio',
+    studyPage: 'portada',
     lessonId: 'L01',
     practica: {
       topic: 'todas',
@@ -59,6 +61,7 @@
     lastFocusedElement: null,
     waitingServiceWorker: null
   };
+  let releaseStudyMedia;
 
   function announce(msg) {
     if (typeof document === 'undefined') return;
@@ -114,6 +117,10 @@
     if (!clean) return { tab: 'inicio' };
     const parts = clean.split('/').map((p) => decodeURIComponent(p));
     const main = (parts[0] || 'inicio').toLowerCase();
+
+    if (main === 'inicio' && ['guia', 'repaso', 'video', 'mision-1', 'mision-2', 'mision-3', 'mision-4'].includes(parts[1])) {
+      return { tab: 'inicio', studyPage: parts[1] };
+    }
 
     if (main === 'aprende') {
       const lId = (parts[1] || '').toUpperCase();
@@ -171,8 +178,8 @@
     }
   }
 
-  // ===================== INICIO VIEW =====================
-  function renderInicioView() {
+  // ===================== GUÍA Y PROGRESO =====================
+  function renderGuiaView() {
     const prof = Storage.getActiveProfile();
     const solvedMap = prof.progress.exercises || {};
     const lessonsRead = prof.progress.lessonsRead || {};
@@ -265,9 +272,10 @@
     }
 
     return `
-      <section aria-labelledby="home-heading">
+      <section aria-labelledby="guide-heading">
+        <a class="study-back" href="#/inicio">← Volver al Inicio</a>
         <div class="card card-highlight">
-          <h2 id="home-heading" tabindex="-1" style="margin-top:0;">Bienvenida a tu espacio de estudio de Estadística</h2>
+          <h2 id="guide-heading" tabindex="-1" style="margin-top:0;">Guía y práctica completa</h2>
           <p style="margin-bottom:0.85rem;">Acá podés repasar cada idea desde cero con palabras sencillas, comprobar tus cuentas paso a paso y practicar a tu ritmo con los 28 ejercicios de la guía más 56 actividades nuevas e integradoras.</p>
           <div class="action-grid">
             <a class="action-card" href="#/aprende/${esc(prof.progress.lastRoute && prof.progress.lastRoute.startsWith('#/aprende/') ? prof.progress.lastRoute.replace('#/aprende/', '') : 'L01')}">
@@ -986,12 +994,18 @@
     if (typeof document === 'undefined') return;
     const container = document.getElementById('app-view');
     if (!container) return;
+    releaseStudyMedia?.();
+    releaseStudyMedia = undefined;
 
     syncTabsAria(state.tab);
     updateHeaderProfileInfo();
 
     if (state.tab === 'inicio') {
-      container.innerHTML = renderInicioView();
+      if (state.studyPage === 'guia') {
+        container.innerHTML = renderGuiaView();
+      } else {
+        releaseStudyMedia = StudyViews.render(container, state.studyPage);
+      }
     } else if (state.tab === 'aprende') {
       container.innerHTML = renderAprendeView();
     } else if (state.tab === 'practica') {
@@ -1016,6 +1030,7 @@
     if (typeof window === 'undefined') return;
     const parsed = parseHashRoute(window.location.hash);
     state.tab = parsed.tab;
+    state.studyPage = parsed.studyPage || 'portada';
 
     if (parsed.tab === 'aprende' && parsed.lessonId) {
       state.lessonId = parsed.lessonId;

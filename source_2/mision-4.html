@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Misión 4: El Reparto Equitativo | Estadística Paso a Paso</title>
+    <style>
+        :root {
+            --color-bg: #F8F9FA;
+            --color-text: #212529;
+            --color-primary: #3B82F6;
+            --color-success: #22C55E;
+            --color-error: #EF4444;
+            --color-warning: #F59E0B;
+            --color-media: #8B5CF6;
+            --color-mediana: #10B981;
+            --color-moda: #F59E0B;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root { --color-bg: #111827; --color-text: #F3F4F6; --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        header { text-align: center; margin-bottom: 2rem; }
+        .badge { 
+            display: inline-block; background: var(--color-text); color: var(--color-bg); 
+            padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; margin-bottom: 1rem; 
+        }
+        h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+        .subtitle { font-size: 1.1rem; opacity: 0.8; max-width: 600px; margin: 0 auto; }
+        .progress-bar {
+            width: 100%; height: 8px; background: rgba(128,128,128,0.2); 
+            border-radius: 4px; margin-top: 1.5rem; overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%; background: var(--color-success); width: 30%;
+            transition: width 0.5s ease;
+        }
+
+        .mission-brief {
+            background: rgba(59, 130, 246, 0.05);
+            border-left: 4px solid var(--color-primary);
+            padding: 1.25rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+        .mission-brief strong { color: var(--color-primary); }
+
+        /* LABORATORIO DE DATOS */
+        .lab-container {
+            background: white;
+            color: #1f2937;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .lab-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .data-input-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(128,128,128,0.05);
+            border-radius: 8px;
+            min-height: 60px;
+        }
+
+        .data-chip {
+            background: var(--color-primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .data-chip:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+        }
+
+        .data-chip .remove-btn {
+            background: rgba(255,255,255,0.3);
+            border: none;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .data-chip .remove-btn:hover {
+            background: rgba(255,255,255,0.5);
+        }
+
+        .input-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-controls input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid rgba(128,128,128,0.3);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .input-controls input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+
+        .btn {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn:hover { background: #2563EB; transform: translateY(-1px); }
+        .btn:focus-visible { outline: 3px solid var(--color-text); outline-offset: 2px; }
+
+        .btn-secondary {
+            background: rgba(128,128,128,0.2);
+            color: var(--color-text);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(128,128,128,0.3);
+        }
+
+        /* VISUALIZACIÓN DE BARRAS */
+        .bars-visualization {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 1rem;
+            height: 250px;
+            margin: 2rem 0;
+            padding: 1rem;
+            background: rgba(128,128,128,0.05);
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .bar-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .bar {
+            width: 60px;
+            background: linear-gradient(to top, var(--color-primary), #60A5FA);
+            border-radius: 8px 8px 0 0;
+            transition: var(--transition);
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            padding-bottom: 0.5rem;
+        }
+
+        .bar-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* LÍNEAS DE MEDIDAS */
+        .measure-line {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 3px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 1rem;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .measure-line.media {
+            background: var(--color-media);
+            color: var(--color-media);
+        }
+
+        .measure-line.mediana {
+            background: var(--color-mediana);
+            color: var(--color-mediana);
+        }
+
+        .measure-line.moda {
+            background: var(--color-moda);
+            color: var(--color-moda);
+        }
+
+        .measure-label {
+            background: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* PANEL DE RESULTADOS */
+        .results-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .result-card {
+            background: rgba(128,128,128,0.05);
+            padding: 1.25rem;
+            border-radius: 8px;
+            border-left: 4px solid;
+            transition: var(--transition);
+        }
+
+        .result-card.media { border-left-color: var(--color-media); }
+        .result-card.mediana { border-left-color: var(--color-mediana); }
+        .result-card.moda { border-left-color: var(--color-moda); }
+
+        .result-card h3 {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.7;
+        }
+
+        .result-value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .result-card.media .result-value { color: var(--color-media); }
+        .result-card.mediana .result-value { color: var(--color-mediana); }
+        .result-card.moda .result-value { color: var(--color-moda); }
+
+        /* CASO ESPECIAL: SUELDOS */
+        .special-case {
+            background: rgba(245, 158, 11, 0.1);
+            border: 2px solid var(--color-warning);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .special-case h3 {
+            color: var(--color-warning);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: rgba(128,128,128,0.3);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .toggle-switch.active {
+            background: var(--color-error);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .toggle-switch.active .toggle-slider {
+            left: 33px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin-top: 1rem;
+            border-collapse: collapse;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 0.75rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(128,128,128,0.2);
+        }
+
+        .comparison-table th {
+            background: rgba(128,128,128,0.1);
+            font-weight: 600;
+        }
+
+        .comparison-table .highlight {
+            background: rgba(239, 68, 68, 0.1);
+            font-weight: bold;
+        }
+
+        /* FEEDBACK Y MODAL */
+        .feedback-msg {
+            text-align: center;
+            min-height: 3rem;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.3s;
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .feedback-msg.visible { opacity: 1; }
+        .feedback-msg.success { color: var(--color-success); background: rgba(34, 197, 94, 0.1); }
+        .feedback-msg.hint { color: var(--color-warning); background: rgba(245, 158, 11, 0.1); }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+        .modal-content {
+            background: var(--color-bg);
+            color: var(--color-text);
+            padding: 2rem;
+            border-radius: var(--radius);
+            max-width: 700px;
+            width: 90%;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+            transform: translateY(20px);
+            transition: transform 0.3s;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.active .modal-content { transform: translateY(0); }
+        .modal-content h2 { color: var(--color-success); margin-bottom: 1rem; }
+
+        .theory-box {
+            background: rgba(128,128,128,0.1);
+            padding: 1.25rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-size: 0.95rem;
+            border-left: 4px solid var(--color-primary);
+        }
+
+        .theory-box h3 {
+            color: var(--color-primary);
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .theory-box ul {
+            margin-left: 1.2rem;
+            margin-top: 0.5rem;
+        }
+
+        .theory-box li {
+            margin-bottom: 0.75rem;
+        }
+
+        .warning-box {
+            background: rgba(239, 68, 68, 0.1);
+            border-left-color: var(--color-error);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-final {
+            background: var(--color-success);
+            width: 100%;
+            justify-content: center;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            font-size: 1.1rem;
+        }
+
+        *:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <span class="badge">Misión 4 de 4</span>
+        <h1>⚖️ El Reparto Equitativo</h1>
+        <p class="subtitle">Bienvenido al laboratorio de medidas. Experimenta con los datos y descubre cómo se comportan la Media, Mediana y Moda.</p>
+        <div class="progress-bar" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+    </header>
+
+    <main>
+        <div class="mission-brief">
+            <strong>🧪 Tu Laboratorio:</strong> Agrega, modifica o elimina datos para ver cómo cambian las medidas en tiempo real. ¡Descubre por tu cuenta cuál es más sensible a los valores extremos!
+        </div>
+
+        <!-- LABORATORIO INTERACTIVO -->
+        <section class="lab-container">
+            <h2 class="lab-title">🔬 Laboratorio de Datos</h2>
+            
+            <div class="data-input-area" id="dataArea">
+                <!-- Los chips de datos se generan aquí -->
+            </div>
+
+            <div class="input-controls">
+                <input type="number" id="newDataInput" placeholder="Agregar un número..." aria-label="Nuevo dato para agregar">
+                <button class="btn" onclick="addData()">➕ Agregar</button>
+                <button class="btn btn-secondary" onclick="loadExample()">📚 Cargar Ejemplo</button>
+                <button class="btn btn-secondary" onclick="clearData()">🗑️ Limpiar</button>
+            </div>
+
+            <!-- VISUALIZACIÓN -->
+            <div class="bars-visualization" id="barsViz">
+                <div style="text-align: center; width: 100%; opacity: 0.5; padding: 2rem;">
+                    Agrega datos para ver la visualización
+                </div>
+            </div>
+
+            <!-- RESULTADOS -->
+            <div class="results-panel" id="resultsPanel">
+                <div class="result-card media">
+                    <h3>📊 Media (Promedio)</h3>
+                    <div class="result-value" id="mediaValue">-</div>
+                    <div style="font-size: 0.85rem; opacity: 0.7; margin-top: 0.5rem;">El reparto equitativo</div>
+                </div>
+                <div class="result-card mediana">
+                    <h3>🎯 Mediana</h3>
+                    <div class="result-value" id="medianaValue">-</div>
+                    <div style="font-size: 0.85rem; opacity: 0.7; margin-top: 0.5rem;">El centro del orden</div>
+                </div>
+                <div class="result-card moda">
+                    <h3>⭐ Moda</h3>
+                    <div class="result-value" id="modaValue">-</div>
+                    <div style="font-size: 0.85rem; opacity: 0.7; margin-top: 0.5rem;">El más popular</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CASO ESPECIAL: SUELDOS -->
+        <section class="special-case">
+            <h3>⚠️ Caso Especial: El Peligro del Dato Extremo</h3>
+            <p>En un comercio, 4 empleados cobran <strong>$300.000</strong> cada uno. El gerente cobra <strong>$2.800.000</strong>.</p>
+            
+            <div class="toggle-container">
+                <div class="toggle-switch" id="gerenteToggle" onclick="toggleGerente()" tabindex="0" role="switch" aria-checked="false" aria-label="Activar salario del gerente">
+                    <div class="toggle-slider"></div>
+                </div>
+                <span id="toggleLabel">Activar salario del gerente (dato atípico)</span>
+            </div>
+
+            <table class="comparison-table" id="comparisonTable">
+                <thead>
+                    <tr>
+                        <th>Escenario</th>
+                        <th>Media</th>
+                        <th>Mediana</th>
+                        <th>¿Cuál representa mejor?</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr id="scenarioA">
+                        <td>Sin gerente</td>
+                        <td>$300.000</td>
+                        <td>$300.000</td>
+                        <td>Ambas son iguales</td>
+                    </tr>
+                    <tr id="scenarioB" style="display: none;">
+                        <td class="highlight">Con gerente</td>
+                        <td class="highlight">$800.000</td>
+                        <td>$300.000</td>
+                        <td class="highlight">¡La Mediana!</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="feedback-msg visible hint" style="margin-top: 1rem;">
+                💡 <strong>Observa:</strong> Cuando activas el gerente, la Media salta de $300.000 a $800.000 (¡se triplica!), pero la Mediana se queda quieta en $300.000. ¿Por qué? Porque la Media es <strong>hipersensible</strong> a valores extremos, mientras que la Mediana es <strong>resistente</strong>.
+            </div>
+        </section>
+
+        <button class="btn btn-final" onclick="completeMission()">
+            🎉 Completar Misión y Ver Resumen Final
+        </button>
+    </main>
+
+    <!-- MODAL FINAL -->
+    <div class="modal-overlay" id="successModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-content" tabindex="-1">
+            <h2 id="modalTitle">🏆 ¡Misión Completada!</h2>
+            <p>Has dominado las tres medidas de tendencia central. Ahora puedes elegir la mejor herramienta para cada situación.</p>
+            
+            <details class="theory-box" open>
+                <summary style="cursor: pointer; font-weight: bold; margin-bottom: 0.5rem;">📖 Resumen Final: Tu Diccionario de Medidas</summary>
+                
+                <h3 style="color: var(--color-media);">📊 Media (Promedio)</h3>
+                <ul>
+                    <li><strong>Concepto:</strong> El reparto equitativo. Si juntamos todo y lo dividimos en partes iguales.</li>
+                    <li><strong>Fórmula:</strong> x̄ = Σx ÷ n</li>
+                    <li><strong>Propiedad:</strong> <span style="color: var(--color-error); font-weight: bold;">HIPERSENSIBLE</span> a valores extremos.</li>
+                    <li><strong>Usar cuando:</strong> No hay datos atípicos y quieres el promedio exacto.</li>
+                </ul>
+
+                <h3 style="color: var(--color-mediana);">🎯 Mediana</h3>
+                <ul>
+                    <li><strong>Concepto:</strong> El centro del orden. El valor que queda justo en el medio.</li>
+                    <li><strong>Pasos:</strong> 1) Ordenar datos. 2) Buscar posición central: (n+1)/2</li>
+                    <li><strong>Propiedad:</strong> <span style="color: var(--color-success); font-weight: bold;">RESISTENTE</span> a valores extremos.</li>
+                    <li><strong>Usar cuando:</strong> Hay datos atípicos (como el gerente) que distorsionarían la media.</li>
+                </ul>
+
+                <h3 style="color: var(--color-moda);">⭐ Moda</h3>
+                <ul>
+                    <li><strong>Concepto:</strong> El rey de la popularidad. El dato que más se repite.</li>
+                    <li><strong>Propiedad:</strong> Es la <strong>única</strong> medida que sirve para variables cualitativas nominales (como "deporte preferido").</li>
+                    <li><strong>Usar cuando:</strong> Quieres saber qué es lo más común o frecuente.</li>
+                </ul>
+
+                <div class="warning-box">
+                    ⚠️ <strong>¡Regla de Oro del Examen!</strong> Antes de calcular, pregúntate:
+                    <ul style="margin-left: 1.2rem; margin-top: 0.5rem;">
+                        <li>¿La variable es numérica? Si es cualitativa nominal, solo puedo usar la <strong>Moda</strong>.</li>
+                        <li>¿Hay datos atípicos extremos? Si sí, la <strong>Mediana</strong> representa mejor la realidad.</li>
+                        <li>¿Quiero el promedio exacto sin extremos? Uso la <strong>Media</strong>.</li>
+                    </ul>
+                </div>
+            </details>
+
+            <button class="btn btn-final" onclick="alert('¡Felicidades! Has completado las 4 misiones del Repaso Definitivo. ¡Vas a romperla en ese examen!')">
+                🎓 ¡Estoy Listo para el Examen!
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let data = [];
+        let gerenteActivo = false;
+
+        // Datos iniciales de ejemplo
+        const exampleData = [6, 1, 0, 2, 1];
+
+        function init() {
+            loadExample();
+        }
+
+        function loadExample() {
+            data = [...exampleData];
+            renderData();
+            updateVisualization();
+        }
+
+        function addData() {
+            const input = document.getElementById('newDataInput');
+            const value = parseFloat(input.value);
+            
+            if (!isNaN(value)) {
+                data.push(value);
+                input.value = '';
+                renderData();
+                updateVisualization();
+            }
+        }
+
+        function removeData(index) {
+            data.splice(index, 1);
+            renderData();
+            updateVisualization();
+        }
+
+        function clearData() {
+            data = [];
+            renderData();
+            updateVisualization();
+        }
+
+        function renderData() {
+            const area = document.getElementById('dataArea');
+            area.innerHTML = '';
+            
+            if (data.length === 0) {
+                area.innerHTML = '<div style="opacity: 0.5; width: 100%; text-align: center;">No hay datos. Agrega números arriba.</div>';
+                return;
+            }
+
+            data.forEach((value, index) => {
+                const chip = document.createElement('div');
+                chip.className = 'data-chip';
+                chip.innerHTML = `
+                    <span>${value}</span>
+                    <button class="remove-btn" onclick="removeData(${index})" aria-label="Eliminar dato ${value}">×</button>
+                `;
+                area.appendChild(chip);
+            });
+        }
+
+        function updateVisualization() {
+            if (data.length === 0) {
+                document.getElementById('barsViz').innerHTML = '<div style="text-align: center; width: 100%; opacity: 0.5; padding: 2rem;">Agrega datos para ver la visualización</div>';
+                document.getElementById('mediaValue').textContent = '-';
+                document.getElementById('medianaValue').textContent = '-';
+                document.getElementById('modaValue').textContent = '-';
+                return;
+            }
+
+            const sorted = [...data].sort((a, b) => a - b);
+            const max = Math.max(...sorted);
+            
+            // Calcular medidas
+            const media = sorted.reduce((sum, val) => sum + val, 0) / sorted.length;
+            const mediana = calculateMediana(sorted);
+            const moda = calculateModa(sorted);
+
+            // Actualizar valores
+            document.getElementById('mediaValue').textContent = media.toFixed(2);
+            document.getElementById('medianaValue').textContent = mediana.toFixed(2);
+            document.getElementById('modaValue').textContent = moda !== null ? moda.toFixed(2) : 'N/A';
+
+            // Renderizar barras
+            const viz = document.getElementById('barsViz');
+            viz.innerHTML = '';
+
+            sorted.forEach((value, index) => {
+                const height = (value / max) * 200;
+                const bar = document.createElement('div');
+                bar.className = 'bar-item';
+                bar.innerHTML = `
+                    <div class="bar" style="height: ${height}px;">${value}</div>
+                    <div class="bar-label">#${index + 1}</div>
+                `;
+                viz.appendChild(bar);
+            });
+
+            // Agregar líneas de medidas
+            addMeasureLine('media', media, max, `Media: ${media.toFixed(2)}`);
+            addMeasureLine('mediana', mediana, max, `Mediana: ${mediana.toFixed(2)}`);
+            if (moda !== null) {
+                addMeasureLine('moda', moda, max, `Moda: ${moda.toFixed(2)}`);
+            }
+        }
+
+        function addMeasureLine(type, value, max, label) {
+            const viz = document.getElementById('barsViz');
+            const height = (value / max) * 200;
+            const line = document.createElement('div');
+            line.className = `measure-line ${type}`;
+            line.style.bottom = `${height + 40}px`;
+            line.innerHTML = `<span class="measure-label">${label}</span>`;
+            viz.appendChild(line);
+        }
+
+        function calculateMediana(sorted) {
+            const n = sorted.length;
+            if (n % 2 === 1) {
+                return sorted[Math.floor(n / 2)];
+            } else {
+                return (sorted[n / 2 - 1] + sorted[n / 2]) / 2;
+            }
+        }
+
+        function calculateModa(sorted) {
+            const freq = {};
+            sorted.forEach(val => {
+                freq[val] = (freq[val] || 0) + 1;
+            });
+            
+            const maxFreq = Math.max(...Object.values(freq));
+            if (maxFreq === 1) return null; // Amodal
+            
+            const modas = Object.keys(freq).filter(key => freq[key] === maxFreq);
+            return parseFloat(modas[0]); // Retornar la primera moda si hay varias
+        }
+
+        function toggleGerente() {
+            gerenteActivo = !gerenteActivo;
+            const toggle = document.getElementById('gerenteToggle');
+            const label = document.getElementById('toggleLabel');
+            const scenarioB = document.getElementById('scenarioB');
+            
+            toggle.classList.toggle('active');
+            toggle.setAttribute('aria-checked', gerenteActivo);
+            
+            if (gerenteActivo) {
+                label.textContent = 'Gerente activado (dato atípico: $2.800.000)';
+                scenarioB.style.display = 'table-row';
+            } else {
+                label.textContent = 'Activar salario del gerente (dato atípico)';
+                scenarioB.style.display = 'none';
+            }
+        }
+
+        function completeMission() {
+            document.getElementById('successModal').classList.add('active');
+            document.querySelector('.modal-content').focus();
+        }
+
+        // Soporte de teclado para el toggle
+        document.getElementById('gerenteToggle').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleGerente();
+            }
+        });
+
+        // Iniciar
+        init();
+    </script>
+</body>
+</html>
