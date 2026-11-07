@@ -4,6 +4,8 @@
 
 La publicación utiliza la raíz de la rama `gh-pages`, generada exclusivamente desde `site/`. Para publicar cambios posteriores, verificarlos y confirmarlos en `main`, y ejecutar `git subtree push --prefix site origin gh-pages`. Los cambios de `main` no se publican automáticamente.
 
+El historial desde la entrega de Antigravity reúne las correcciones, las pruebas, el despliegue y las propuestas para la próxima versión. [Estado del proyecto](docs/ESTADO_POST_ANTIGRAVITY.md).
+
 Aplicación web educativa, estática e interactiva de **Estadística para 2.º año de educación secundaria** (Ciclo Básico, Argentina). Diseñada para acompañar el estudio autónomo y el repaso de **variables estadísticas, tablas de frecuencia, gráficos de barras y medidas de tendencia central (media, mediana y moda)**.
 
 ---
