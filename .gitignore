@@ -1,0 +1,14 @@
+# Archivos privados e intermediarios locales
+_progreso/
+entrega/
+node_modules/
+.env
+.env.*
+*.pem
+*.key
+*.pfx
+*.log
+*.tmp
+__pycache__/
+.DS_Store
+Thumbs.db

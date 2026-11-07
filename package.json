@@ -1,0 +1,17 @@
+{
+  "name": "estadistica-paso-a-paso",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AplicaciÃ³n web educativa e interactiva de EstadÃ­stica para 2.Âº aÃ±o de educaciÃ³n secundaria (Argentina).",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "test": "node --test tests/math-and-content.test.js tests/security.test.js",
+    "validate:content": "node scripts/validate-content.js",
+    "test:e2e": "node tests/e2e.test.js",
+    "package": "node scripts/package.js",
+    "serve": "node scripts/serve.js"
+  }
+}

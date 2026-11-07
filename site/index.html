@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es-AR" data-theme="sistema" data-font="sans" data-size="100" data-line="normal" data-focus="false">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="referrer" content="no-referrer" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-naB/BdiFn0fBRIj91tvbyzwhoawzppNM7YUBaEdhsIc='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Estadística paso a paso: aplicación educativa interactiva para 2.º año de secundaria. Variables, tablas de frecuencia, gráficos de barras y medidas de tendencia central." />
+  <meta name="theme-color" content="#142E43" />
+  <title>Estadística paso a paso · 2.º año de secundaria</title>
+  <link rel="icon" type="image/svg+xml" href="assets/icons/icon.svg" />
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <script>
+    /* Carga temprana de preferencias para evitar destello de tema incorrecto */
+    (function () {
+      try {
+        var raw = localStorage.getItem('estadistica_paso_a_paso_v1:' + new URL('.', location.href).pathname);
+        if (!raw) return;
+        var parsed = JSON.parse(raw);
+        var a = parsed && parsed.appearance;
+        if (!a) return;
+        var root = document.documentElement;
+        if (a.theme) root.setAttribute('data-theme', a.theme);
+        if (a.font) root.setAttribute('data-font', a.font);
+        if (a.fontSize) root.setAttribute('data-size', String(a.fontSize));
+        if (a.lineHeight) root.setAttribute('data-line', a.lineHeight);
+        if (typeof a.focusMode === 'boolean') root.setAttribute('data-focus', a.focusMode ? 'true' : 'false');
+      } catch (_e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body data-print-solutions="false">
+  <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
+
+  <!-- Barra visible cuando el Modo Enfoque está activo -->
+  <div class="focus-exit-bar" id="focus-exit-bar" role="region" aria-label="Control de modo enfoque">
+    <span><strong>Modo enfoque activo:</strong> se ocultaron paneles secundarios para concentrar la lectura.</span>
+    <button type="button" class="btn btn-sm btn-primary" id="btn-exit-focus">Salir de modo enfoque</button>
+  </div>
+
+  <!-- Aviso de actualización de Service Worker -->
+  <div class="focus-exit-bar" id="sw-update-banner" role="status" hidden>
+    <span>Hay una nueva versión disponible del sitio. Tu progreso actual se conservará.</span>
+    <button type="button" class="btn btn-sm btn-primary" id="btn-apply-sw-update">Actualizar ahora</button>
+  </div>
+
+  <header class="site-header" role="banner">
+    <div class="header-inner">
+      <div class="header-top">
+        <div class="brand-group">
+          <img src="assets/icons/icon.svg" alt="" class="brand-icon" width="36" height="36" />
+          <div class="brand-titles">
+            <h1 class="site-title">Estadística paso a paso</h1>
+            <p class="site-subtitle">Aprendé, practicá y comprobá tus ideas · <span class="badge">2.º año de secundaria</span></p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button type="button" class="btn btn-sm" id="btn-open-symbols" aria-haspopup="dialog">
+            ¿Qué significa cada símbolo?
+          </button>
+          <button type="button" class="btn btn-sm" id="btn-open-profile" aria-haspopup="dialog" title="Cambiar perfil local o exportar progreso">
+            Perfil: <span id="header-profile-name">Mi práctica</span>
+          </button>
+          <button type="button" class="btn btn-sm btn-secondary" id="btn-open-appearance" aria-haspopup="dialog">
+            Apariencia
+          </button>
+        </div>
+      </div>
+
+      <nav class="main-nav" aria-label="Secciones principales">
+        <div class="nav-tablist" role="tablist" aria-label="Pestañas de navegación principal" id="main-tablist">
+          <button type="button" role="tab" class="nav-tab" id="tab-inicio" data-tab="inicio" aria-selected="true" aria-controls="main-content" tabindex="0">
+            Inicio
+          </button>
+          <button type="button" role="tab" class="nav-tab" id="tab-aprende" data-tab="aprende" aria-selected="false" aria-controls="main-content" tabindex="-1">
+            Aprendé
+          </button>
+          <button type="button" role="tab" class="nav-tab" id="tab-practica" data-tab="practica" aria-selected="false" aria-controls="main-content" tabindex="-1">
+            Practicá
+          </button>
+          <button type="button" role="tab" class="nav-tab" id="tab-laboratorio" data-tab="laboratorio" aria-selected="false" aria-controls="main-content" tabindex="-1">
+            Laboratorio
+          </button>
+          <button type="button" role="tab" class="nav-tab" id="tab-simulacro" data-tab="simulacro" aria-selected="false" aria-controls="main-content" tabindex="-1">
+            Simulacro
+          </button>
+          <button type="button" role="tab" class="nav-tab" id="tab-recursos" data-tab="recursos" aria-selected="false" aria-controls="main-content" tabindex="-1">
+            Recursos
+          </button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Región de anuncios breves para lectores de pantalla -->
+  <div id="live-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Contenido principal dinámico -->
+  <main id="main-content" class="main-container" role="tabpanel" aria-labelledby="tab-inicio" tabindex="-1">
+    <noscript>
+      <section class="card card-highlight">
+        <h2>Se requiere JavaScript para las actividades interactivas</h2>
+        <p>Las prácticas paso a paso, el laboratorio editable y el simulacro funcionan con JavaScript en tu navegador. Aun sin JavaScript, podés consultar y descargar directamente todos los materiales estáticos de estudio:</p>
+        <ul>
+          <li><a href="assets/documentos/guia-estudio-estadistica-2do-anio.pdf">Descargar Guía de Estudio Teórico-Práctica en PDF (28 ejercicios con solucionario)</a></li>
+          <li><a href="downloads/fichas-estadistica-2do-anio.zip">Descargar paquete ZIP con las 10 fichas verticales para celular</a></li>
+          <li>Fichas individuales en PNG:
+            <a href="assets/fichas/ficha-01-variables.png">01 Variables</a> ·
+            <a href="assets/fichas/ficha-02-frecuencia-absoluta.png">02 Frecuencia absoluta</a> ·
+            <a href="assets/fichas/ficha-03-frecuencia-relativa-porcentaje.png">03 Frecuencia relativa y %</a> ·
+            <a href="assets/fichas/ficha-04-frecuencia-acumulada.png">04 Frecuencia acumulada</a> ·
+            <a href="assets/fichas/ficha-05-grafico-de-barras.png">05 Gráfico de barras</a> ·
+            <a href="assets/fichas/ficha-06-media.png">06 Media</a> ·
+            <a href="assets/fichas/ficha-07-mediana.png">07 Mediana</a> ·
+            <a href="assets/fichas/ficha-08-moda.png">08 Moda</a> ·
+            <a href="assets/fichas/ficha-09-elegir-la-medida.png">09 Elegir la medida</a> ·
+            <a href="assets/fichas/ficha-10-simbolos.png">10 Símbolos</a>
+          </li>
+        </ul>
+      </section>
+    </noscript>
+    <div id="app-view">
+      <div class="card">
+        <p>Cargando contenido educativo de Estadística...</p>
+      </div>
+    </div>
+  </main>
+
+  <button type="button" class="btn btn-primary btn-scroll-top" id="btn-scroll-top" hidden aria-label="Volver arriba">
+    ↑ Arriba
+  </button>
+
+  <!-- Diálogo de Apariencia y Accesibilidad -->
+  <div class="modal-backdrop" id="modal-appearance" role="dialog" aria-modal="true" aria-labelledby="modal-appearance-title" hidden>
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2 id="modal-appearance-title" style="margin:0;font-size:1.25rem;">Preferencias de apariencia y lectura</h2>
+        <button type="button" class="btn btn-sm" data-close-modal="modal-appearance">Cerrar (Esc)</button>
+      </div>
+      <div class="grid-2">
+        <div class="field-group">
+          <label class="field-label" for="pref-theme">Tema de color</label>
+          <select id="pref-theme">
+            <option value="sistema">Sistema (según tu dispositivo)</option>
+            <option value="claro">Claro</option>
+            <option value="oscuro">Oscuro</option>
+            <option value="sepia">Sepia (lectura cálida)</option>
+            <option value="contraste">Alto contraste</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="pref-font">Tipografía</label>
+          <select id="pref-font">
+            <option value="sans">Sans legible del sistema (Aa Bb 123)</option>
+            <option value="serif">Serif de lectura con remates (Aa Bb 123)</option>
+            <option value="mono">Monoespaciada de ancho fijo (Aa Bb 123)</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="pref-size">Tamaño de letra</label>
+          <select id="pref-size">
+            <option value="100">100 % (Estándar 18 px)</option>
+            <option value="115">115 % (Ampliado)</option>
+            <option value="130">130 % (Grande)</option>
+            <option value="150">150 % (Extra grande)</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="pref-line">Interlineado</label>
+          <select id="pref-line">
+            <option value="normal">Normal</option>
+            <option value="amplio">Amplio (mayor separación entre renglones)</option>
+          </select>
+        </div>
+      </div>
+      <div class="card" style="margin-top:0.85rem;">
+        <label style="display:flex;align-items:center;gap:0.6rem;font-weight:700;cursor:pointer;">
+          <input type="checkbox" id="pref-focus" style="width:1.3rem;height:1.3rem;" />
+          <span>Activar modo enfoque (reduce bloques secundarios y conserva navegación y ayudas)</span>
+        </label>
+        <p class="field-hint" style="margin:0.4rem 0 0;">Muestra de lectura: «La media de 16 observaciones cuya suma es 127 es 127 ÷ 16 = 7,9375 ≈ 7,94».</p>
+      </div>
+      <div style="display:flex;justify-content:space-between;gap:0.65rem;flex-wrap:wrap;margin-top:0.85rem;">
+        <button type="button" class="btn" id="btn-reset-appearance">Restablecer apariencia</button>
+        <button type="button" class="btn btn-primary" data-close-modal="modal-appearance">Listo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Diálogo de Símbolos -->
+  <div class="modal-backdrop" id="modal-symbols" role="dialog" aria-modal="true" aria-labelledby="modal-symbols-title" hidden>
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2 id="modal-symbols-title" style="margin:0;font-size:1.25rem;">Guía rápida: ¿Qué significa cada símbolo?</h2>
+        <button type="button" class="btn btn-sm" data-close-modal="modal-symbols">Cerrar (Esc)</button>
+      </div>
+      <p style="margin-top:0;">Cada símbolo matemático abrevia una idea que primero podés decir con palabras:</p>
+      <div id="modal-symbols-body"></div>
+    </div>
+  </div>
+
+  <!-- Diálogo de Perfiles y Progreso Local -->
+  <div class="modal-backdrop" id="modal-profile" role="dialog" aria-modal="true" aria-labelledby="modal-profile-title" hidden>
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2 id="modal-profile-title" style="margin:0;font-size:1.25rem;">Progreso local y perfiles en este navegador</h2>
+        <button type="button" class="btn btn-sm" data-close-modal="modal-profile">Cerrar (Esc)</button>
+      </div>
+      <div id="modal-profile-body"></div>
+    </div>
+  </div>
+
+  <!-- Diálogo de Índice de Sección / Visor de Ficha -->
+  <div class="modal-backdrop" id="modal-generic" role="dialog" aria-modal="true" aria-labelledby="modal-generic-title" hidden>
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2 id="modal-generic-title" style="margin:0;font-size:1.25rem;">Índice</h2>
+        <button type="button" class="btn btn-sm" data-close-modal="modal-generic">Cerrar (Esc)</button>
+      </div>
+      <div id="modal-generic-body"></div>
+    </div>
+  </div>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-inner">
+      <div>
+        <strong>Estadística paso a paso · 2.º año de secundaria</strong>
+        <div>Material de apoyo. Seguí también las indicaciones de tu docente. Los ejemplos son ficticios.</div>
+      </div>
+      <div>
+        <span id="footer-storage-status">El progreso se guarda en este navegador (sin cuentas ni servidores externos).</span>
+      </div>
+    </div>
+  </footer>
+
+  <script defer src="assets/js/math-engine.js"></script>
+  <script defer src="assets/js/lessons-data.js"></script>
+  <script defer src="assets/js/exercises-data.js"></script>
+  <script defer src="assets/js/storage.js"></script>
+  <script defer src="assets/js/charts.js"></script>
+  <script defer src="assets/js/ui-views.js"></script>
+  <script defer src="assets/js/app.js"></script>
+</body>
+</html>

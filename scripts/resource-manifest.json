@@ -1,0 +1,98 @@
+[
+  {
+    "kind": "ficha-png",
+    "source_rel": "2026 -  2do IVto - Estadistica/Infografias_Celular_Cielito/01_Variables.png",
+    "dest_rel": "site/assets/fichas/ficha-01-variables.png",
+    "bytes": 151487,
+    "sha256": "bd671be5b283abbf379f0f16b0e1343ddf349cd9e6b61daf7c957967b5b7bf89",
+    "public_sanitized": true
+  },
+  {
+    "kind": "ficha-png",
+    "source_rel": "2026 -  2do IVto - Estadistica/Infografias_Celular_Cielito/02_Frecuencia_absoluta.png",
+    "dest_rel": "site/assets/fichas/ficha-02-frecuencia-absoluta.png",
+    "bytes": 103393,
+    "sha256": "ab40aa5f596136f09425bbc8e8fd5f29fe640d16ac64c9dc11331b0923e57b67",
+    "public_sanitized": true
+  },
+  {
+    "kind": "ficha-png",
+    "source_rel": "2026 -  2do IVto - Estadistica/Infografias_Celular_Cielito/03_Frecuencia_relativa_y_porcentaje.png",
+    "dest_rel": "site/assets/fichas/ficha-03-frecuencia-relativa-porcentaje.png",
+    "bytes": 133789,
+    "sha256": "e442f4a3459ef55711552554001c3e207ea423dd6c7523e1c98939938684246d",
+    "public_sanitized": true
+  },
+  {
+    "kind": "ficha-png",
+    "source_rel": "2026 -  2do IVto - Estadistica/Infografias_Celular_Cielito/04_Frecuencia_acumulada.png",
+    "dest_rel": "site/assets/fichas/ficha-04-frecuencia-acumulada.png",
+    "bytes": 126385,
+    "sha256": "71db38dfa1b282b4bb6dd72ed117ba883a38ebccbc6c1cf29d66f5401897a62a",
+    "public_sanitized": true
+  },
+  {
+    "kind": "ficha-png",
+    "source_rel": "2026 -  2do IVto - Estadistica/Infografias_Celular_Cielito/05_Grafico_de_barras.png",
+    "dest_rel": "site/assets/fichas/ficha-05-grafico-de-barras.png",
+    "bytes": 130005,
+    "sha256": "c5133b56748af2bfaf5b3bf88ac11849ab458bec0424a1b6de5f8c14bc0f877e",
+    "public_sanitized": true
+  },
+  {
+    "kind": "ficha-png",
+    "source_rel": "2026 -  2do IVto - Estadistica/Infografias_Celular_Cielito/06_Media.png",
+    "dest_rel": "site/assets/fichas/ficha-06-media.png",
+    "bytes": 163937,
+    "sha256": "83988b20f63342ab2c9b9fddecee32c40104759b2a63b5ee518a40562af7ffd9",
+    "public_sanitized": true
+  },
+  {
+    "kind": "ficha-png",
+    "source_rel": "2026 -  2do IVto - Estadistica/Infografias_Celular_Cielito/07_Mediana.png",
+    "dest_rel": "site/assets/fichas/ficha-07-mediana.png",
+    "bytes": 164409,
+    "sha256": "0d80d01b407fc805f65d46c8a1cdb8d417e932ae956cdf386585a4d5b4bcb5d4",
+    "public_sanitized": true
+  },
+  {
+    "kind": "ficha-png",
+    "source_rel": "2026 -  2do IVto - Estadistica/Infografias_Celular_Cielito/08_Moda.png",
+    "dest_rel": "site/assets/fichas/ficha-08-moda.png",
+    "bytes": 156470,
+    "sha256": "50df68ab4c345f6bad1ad7d0d897f82f9d05d45be7c54e3d33f0bcb59303aaad",
+    "public_sanitized": true
+  },
+  {
+    "kind": "ficha-png",
+    "source_rel": "2026 -  2do IVto - Estadistica/Infografias_Celular_Cielito/09_Elegir_la_medida.png",
+    "dest_rel": "site/assets/fichas/ficha-09-elegir-la-medida.png",
+    "bytes": 167323,
+    "sha256": "a8ce877cec76a2ac9b5606e7a6c7e71fbc8721abca664a4874f3bdfec41bc723",
+    "public_sanitized": true
+  },
+  {
+    "kind": "ficha-png",
+    "source_rel": "2026 -  2do IVto - Estadistica/Infografias_Celular_Cielito/10_Simbolos.png",
+    "dest_rel": "site/assets/fichas/ficha-10-simbolos.png",
+    "bytes": 156305,
+    "sha256": "0ced0fd9eebda62ca4ed838c8c4fbd866c3b6cbb8bf64d15bf46836fc593eb3c",
+    "public_sanitized": true
+  },
+  {
+    "kind": "guia-pdf",
+    "source_rel": "2026 -  2do IVto - Estadistica/Guía de Estudio Teórico-Práctica de Estadística_ 2° Año de Educación Secundaria-.pdf",
+    "dest_rel": "site/assets/documentos/guia-estudio-estadistica-2do-anio.pdf",
+    "bytes": 913087,
+    "sha256": "42ef9c6dac954c0b219c018ac59075bb9ca98b88cd9b69a8c268ff44f0692d9b",
+    "public_sanitized": true
+  },
+  {
+    "kind": "fichas-zip",
+    "source_rel": "2026 -  2do IVto - Estadistica/Infografias_Celular_Cielito.zip",
+    "dest_rel": "site/downloads/fichas-estadistica-2do-anio.zip",
+    "bytes": 1342334,
+    "sha256": "fe194fbe49d03b5a26f72f55471ff85c3a1036d7fcb93bdac841c3cc9d74fa21",
+    "public_sanitized": true
+  }
+]
